@@ -543,7 +543,7 @@ void readinput(char *in_file, GParam *param)
 
 void init_derived_constants(GParam *param)
   {
-  int i;
+  int i,j;
 
   // derived constants
   param->d_volume=1;
@@ -559,8 +559,33 @@ void init_derived_constants(GParam *param)
      (param->d_space_vol)*=(param->d_size[i]);
      }
 
+  // Calculation of orthogonal components of the volume, with respect
+  // to an axis i
+  // i.e.: d_orth_vol[0] = d_space_vol;
+  //       d_orth_vol[1] = d_size[0]*d_size[2]*d_size[3]
+  for(i=0; i<STDIM; i++)
+    {
+    (param->d_orth_vol[i])=1;
+    }
+
+  for(i=0; i<STDIM; i++)
+    {
+    for(j=0; j<STDIM; j++)
+      {
+      if(i!=j)
+        {
+        (param->d_orth_vol[i])*=(param->d_size[j]);
+        }
+      }
+    }
+
+  // Calculating inverse volumes...
   param->d_inv_vol=1.0/((double) param->d_volume);
   param->d_inv_space_vol=1.0/((double) param->d_space_vol);
+  for(i=0; i<STDIM; i++)
+    {
+    (param->d_inv_orth_vol[i])=1.0/((double) param->d_orth_vol[i]);
+    }
   }
 
 

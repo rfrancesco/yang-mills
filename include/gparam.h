@@ -64,6 +64,8 @@ typedef struct GParam {
   double d_inv_vol;        // 1 / tot. volume
   long d_space_vol;        // spatial component of the volume
   double d_inv_space_vol;  // 1 / spatial component of the volume
+  long d_orth_vol[STDIM];  // orthogonal component of the volume, with respect to an axis
+  double d_inv_orth_vol[STDIM]; // i.e.: d_space_vol == d_orth_vol[0];
 } GParam;
 
 

@@ -86,11 +86,45 @@ void init_geometry(Geometry *geo, GParam const * const param)
        }
      }
 
+  // Allocate d_orth_[stuff]
+  for(int i=0; i<STDIM; i++)
+    {
+    err=posix_memalign((void**)&(geo->d_orth_timeslice[i]), (size_t)INT_ALIGN, (size_t) param->d_volume * sizeof(int));
+    if(err!=0)
+      {
+      fprintf(stderr, "Problems in allocating the geometry! (%s, %d)\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
+      }
+    err=posix_memalign((void**)&(geo->d_orth_spacecomp[i]), (size_t)INT_ALIGN, (size_t) param->d_volume * sizeof(long));
+    if(err!=0)
+      {
+      fprintf(stderr, "Problems in allocating the geometry! (%s, %d)\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
+      }
+    err=posix_memalign((void**)&(geo->d_orth_tsp[i]), (size_t)INT_ALIGN, (size_t) param->d_size[i] * sizeof(long *));
+    if(err!=0)
+      {
+      fprintf(stderr, "Problems in allocating the geometry! (%s, %d)\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
+      }
+    for(r=0; r<param->d_size[0]; r++)
+      {
+      err=posix_memalign((void**)&(geo->d_orth_tsp[i][r]), (size_t)INT_ALIGN, (size_t) param->d_orth_vol[i] * sizeof(long));
+      if(err!=0)
+        {
+        fprintf(stderr, "Problems in allocating the geometry! (%s, %d)\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+        }
+      }
+    }
+
+
   // INITIALIZE
   for(r=0; r<param->d_volume; r++)
      {
      si_to_cart(cartcoord, r, param);
 
+     // Calculate neighbors of r and populate nnp(r,i) and nnm(r,i)
      for(i=0; i<STDIM; i++)
         {
         value=cartcoord[i];
@@ -117,6 +151,7 @@ void init_geometry(Geometry *geo, GParam const * const param)
         }
      } // end of loop on r
 
+  // Calculate and populate conversion table si <-> (sisp, t)
   for(r=0; r<param->d_volume; r++)
      {
      si_to_sisp_and_t_compute(&rp, &value, r, param);
@@ -151,6 +186,18 @@ void free_geometry(Geometry *geo, GParam const * const param)
      free(geo->d_tsp[r]);
      }
   free(geo->d_tsp);
+
+  // Deallocate r <-> (par, orth)
+  for(int i=0; i<STDIM; i++)
+    {
+    free(geo->d_orth_timeslice[i]);
+    free(geo->d_orth_spacecomp[i]);
+    for(r=0; r<param->d_size[i]; r++)
+      {
+      free(geo->d_orth_tsp[i][r]);
+      }
+    free(geo->d_orth_tsp[i]);
+    }
   }
 
 

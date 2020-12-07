@@ -10,6 +10,9 @@ typedef struct Geometry {
    int *d_timeslice;  // d_timeslice[r]  = time component of r
    long *d_spacecomp; // d_spacecomp[r]  = space component of r
    long **d_tsp;      // d_tsp[t][rsp] = r such that d_timeslice[r]=t and d_spacecomp[r]=rsp
+   long *d_orth_timeslice[STDIM]; // d_orth_timeslice[i][r] = component of r parallel to the axis i
+   long *d_orth_spacecomp[STDIM]; // d_orth_spacecomp[i][r] = component of r orthogonal to the axis i
+   long **d_orth_tsp[STDIM];      // d_orth_tsp[i][par][orth] = r such that d_orth_timeslice[i][r] = par and d_orth_spacecomp[i][r] = orth
 } Geometry;
 
 // these are the functions to be used in shwitching between different indices
