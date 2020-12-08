@@ -43,6 +43,28 @@ void real_main(char *in_file)
     // initialize gauge configuration
     init_gauge_conf(&GC, &param);
 
+    printf("Testing orthogonal volumes...");
+    long prod=1;
+    long prod_test=1;
+    for(int axis=0; axis<STDIM; axis++)
+      {
+      prod*=param.d_orth_vol[axis];
+      }
+    for(int i=0; i<STDIM-1; i++)
+      {
+      prod_test*=param.d_volume;
+      }
+    if(prod == prod_test)
+      {
+      printf("OK!\n");
+      }
+    else
+      {
+      printf("ERROR! \n");
+      exit(EXIT_FAILURE);
+      }
+
+
     for(int axis=0; axis<STDIM; axis++)
       {
       printf("Testing: (rsp, t, axis=%d)\n", axis);
