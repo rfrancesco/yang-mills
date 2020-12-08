@@ -10,7 +10,7 @@ typedef struct Geometry {
    int *d_timeslice;  // d_timeslice[r]  = time component of r
    long *d_spacecomp; // d_spacecomp[r]  = space component of r
    long **d_tsp;      // d_tsp[t][rsp] = r such that d_timeslice[r]=t and d_spacecomp[r]=rsp
-   long *d_orth_timeslice[STDIM]; // d_orth_timeslice[i][r] = component of r parallel to the axis i
+   int *d_orth_timeslice[STDIM]; // d_orth_timeslice[i][r] = component of r parallel to the axis i
    long *d_orth_spacecomp[STDIM]; // d_orth_spacecomp[i][r] = component of r orthogonal to the axis i
    long **d_orth_tsp[STDIM];      // d_orth_tsp[i][par][orth] = r such that d_orth_timeslice[i][r] = par and d_orth_spacecomp[i][r] = orth
 } Geometry;
@@ -51,6 +51,20 @@ inline void si_to_sisp_and_t(long *sisp, int *t, Geometry const * const geo, lon
   {
   *sisp=geo->d_spacecomp[si];
   *t=geo->d_timeslice[si];
+  }
+
+// si <-> (axis, siorth, par)
+void si_to_siorth_and_par_compute(long *siorth, int *par, int axis, long si, GParam const * const param);
+
+inline long siorth_and_par_to_si(Geometry const * const geo, long siorth, int par, int axis)
+  {
+  return geo->d_orth_tsp[axis][par][siorth];
+  }
+
+inline void si_to_siorth_and_par(long *siorth, int *par, int axis, long si, Geometry const * const geo)
+  {
+  *siorth=geo->d_orth_spacecomp[axis][si];
+  *par=geo->d_orth_timeslice[axis][si];
   }
 
 // for debug

@@ -107,7 +107,7 @@ void init_geometry(Geometry *geo, GParam const * const param)
       fprintf(stderr, "Problems in allocating the geometry! (%s, %d)\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
       }
-    for(r=0; r<param->d_size[0]; r++)
+    for(r=0; r<param->d_size[i]; r++)
       {
       err=posix_memalign((void**)&(geo->d_orth_tsp[i][r]), (size_t)INT_ALIGN, (size_t) param->d_orth_vol[i] * sizeof(long));
       if(err!=0)
@@ -159,6 +159,19 @@ void init_geometry(Geometry *geo, GParam const * const param)
      geo->d_timeslice[r]=value;
      geo->d_tsp[value][rp]=r;
      }
+
+  // Calculate and populate conversion table si <-> (axis, orth, par)
+
+  for(r=0; r<param->d_volume; r++)
+    {
+    for(i=0; i<STDIM; i++)
+      {
+      si_to_siorth_and_par_compute(&rp, &value, i, r, param);
+      geo->d_orth_spacecomp[i][r]=rp;
+      geo->d_orth_timeslice[i][r]=value;
+      geo->d_orth_tsp[i][value][rp]=r;
+      }
+    }
 
   #ifdef DEBUG
     test_geometry(geo, param);
@@ -298,7 +311,8 @@ void test_geometry(Geometry const * const geo, GParam const * const param)
         exit(EXIT_FAILURE);
         }
       }
-  }
+   }
+
 
 
 
@@ -715,5 +729,29 @@ void lexeo_to_lexeosp_and_t(long *lexeosp, int *t, long lexeo, GParam const * co
   *lexeosp=cartsp_to_lexeosp(ccsp, param);
   }
 
+void si_to_siorth_and_par_compute(long *siorth, int *par, int axis, long si, GParam const * const param)
+  {
+  // Lexicographic ordering of the lattice sites in the space ortogonal to the chosen axis
+  // This work is preliminar, and should be refactored into lexeo_to_whatever() functions
+  // so it can be extended to lexeo ordering once I know enough about which choice makes more sense
+  int cartcoord[STDIM];
+
+  si_to_cart(cartcoord, si, param);
+
+  *par=cartcoord[axis];
+
+  long siorth_temp=0;
+  long aux=1;
+
+  for(int i=0; i<STDIM; i++)
+    {
+    if(i != axis)
+      {
+      siorth_temp+=cartcoord[i]*aux;
+      aux*=param->d_size[i];
+      }
+    }
+  *siorth=siorth_temp;
+  }
 
 #endif
