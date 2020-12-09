@@ -64,10 +64,13 @@ void real_main(char *in_file)
       exit(EXIT_FAILURE);
       }
 
+    printf("Testing consistency of the (rsp, t, axis) <-> r <-> (x_1...x_n, t) mapping. \n");
+    printf("This should loop over every combination of (axis, rsp, t). This should be checked visually. \n");
+    printf("VALID/ERROR: consistency check, by transforming coordinates both ways. ERROR should never be displayed, by design. \n");
 
     for(int axis=0; axis<STDIM; axis++)
       {
-      printf("Testing: (rsp, t, axis=%d)\n", axis);
+      printf("BEGINNING TEST: (rsp, t, axis=%d)\n", axis);
       for(long rsp=0; rsp<param.d_orth_vol[axis]; rsp++)
         {
         printf("Testing rsp = %ld, relative to axis %d. Varying t...\n", rsp, axis);
@@ -96,6 +99,7 @@ void real_main(char *in_file)
             }
           }
         }
+      printf("COMPLETED test for axis=%d\n", axis);
       }
 
 
