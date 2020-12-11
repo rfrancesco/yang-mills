@@ -126,6 +126,7 @@ void readinput(char *in_file, GParam *param)
                     }
                   param->d_beta=temp_d;
                   }
+           // BEGIN: Trace-deformed theory parameters
            else if(strncmp(str, "htracedef", 9)==0)
                   {
                   int halfncolor;
@@ -159,6 +160,7 @@ void readinput(char *in_file, GParam *param)
                     }
                   param->d_tracedef_dim=temp_i;
                   }
+           // END: Trace-deformed theory parameters
            else if(strncmp(str, "theta", 5)==0)
                   {
                   err=fscanf(input, "%lf", &temp_d);
@@ -433,8 +435,8 @@ void readinput(char *in_file, GParam *param)
                     }
                   strcpy(param->d_data_file, temp_str);
                   }
-	   // MONOPOLES file
-	   else if(strncmp(str, "mon_file", 8)==0)
+           // MONOPOLES file
+           else if(strncmp(str, "mon_file", 8)==0)
                   { 
                   err=fscanf(input, "%s", temp_str);
                   if(err!=1)
@@ -546,7 +548,7 @@ void readinput(char *in_file, GParam *param)
         {
         fprintf(stderr, "Error: all sizes has to be larger than 1: the totally reduced case is not implemented! (%s, %d)\n", __FILE__, __LINE__);
         }
-
+      // Tracedef: Check on tracedef_dim
       if(param->d_tracedef_dim > STDIM)
         {
         fprintf(stderr, "Error: the number of compactified dimensions tracedef_dim is larger than the number of spacetime dimensions STDIM = %d ! (%s, %d)\n", STDIM, __FILE__, __LINE__);
