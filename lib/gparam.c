@@ -77,6 +77,7 @@ void readinput(char *in_file, GParam *param)
        {
        param->d_h[i]=0.0;
        }
+    param->d_tracedef_dim=0;
     param->d_theta=0.0;
     param->d_mon_meas=0; // if =1 monopole measures are performed
     param->d_higgs_beta=0.0;
@@ -147,6 +148,16 @@ void readinput(char *in_file, GParam *param)
                        }
                      param->d_h[i]=temp_d;
                      }
+                  }
+            else if(strncmp(str, "tracedef_dim", 4)==0)
+                  {
+                  err=fscanf(input, "%d", &temp_i);
+                  if(err!=1)
+                    {
+                    fprintf(stderr, "Error in reading the file %s (%s, %d)\n", in_file, __FILE__, __LINE__);
+                    exit(EXIT_FAILURE);
+                    }
+                  param->d_tracedef_dim=temp_i;
                   }
            else if(strncmp(str, "theta", 5)==0)
                   {
@@ -534,6 +545,12 @@ void readinput(char *in_file, GParam *param)
       if(err==1)
         {
         fprintf(stderr, "Error: all sizes has to be larger than 1: the totally reduced case is not implemented! (%s, %d)\n", __FILE__, __LINE__);
+        }
+
+      if(param->d_tracedef_dim > STDIM)
+        {
+        fprintf(stderr, "Error: the number of compactified dimensions tracedef_dim is larger than the number of spacetime dimensions STDIM = %d ! (%s, %d)\n", STDIM, __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
         }
 
       init_derived_constants(param);
@@ -1216,7 +1233,8 @@ void print_parameters_tracedef(GParam const * const param, time_t time_start, ti
     if(GGROUP==0) fprintf(fp, "SuN gauge group\n");
     if(GGROUP==1) fprintf(fp, "SoN gauge group\n");
     fprintf(fp, "number of colors: %d\n", NCOLOR);
-    fprintf(fp, "spacetime dimensionality: %d\n\n", STDIM);
+    fprintf(fp, "spacetime dimensionality: %d\n", STDIM);
+    fprintf(fp, "compactified dimensions: %d\n\n", param->d_tracedef_dim);
 
     fprintf(fp, "lattice: %d", param->d_size[0]);
     for(i=1; i<STDIM; i++)

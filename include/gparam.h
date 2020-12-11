@@ -13,6 +13,7 @@ typedef struct GParam {
   // simulation parameters
   double d_beta;
   double d_h[NCOLOR]; // parameters for the trace deformation
+  int d_tracedef_dim; // number of compactified dimensions in trace-deformed theory
   double d_theta;
   double d_adjbeta;
   double d_higgs_beta;
