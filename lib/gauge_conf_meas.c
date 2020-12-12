@@ -518,7 +518,6 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
    long rsp;
    double **rep, **imp;
    int j, err;
-   long i;
 
    for(j=0;j<(int)floor(NCOLOR/2);j++)
       {
@@ -555,7 +554,7 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
         }
       }
 
-   for(rsp=0; rsp<param->d_space_vol; i++)
+   for(rsp=0; rsp<param->d_space_vol; rsp++)
       {
       for(j=0; j<(int)floor(NCOLOR/2); j++)
          {
@@ -634,7 +633,6 @@ void polyakov_for_tracedef_along_axis(Gauge_Conf const * const GC,
    long rsp;
    double **rep, **imp;
    int j, err;
-   long i;
 
    for(j=0;j<(int)floor(NCOLOR/2);j++)
       {
@@ -671,7 +669,7 @@ void polyakov_for_tracedef_along_axis(Gauge_Conf const * const GC,
         }
       }
 
-   for(rsp=0; rsp<param->d_orth_vol[axis]; i++)
+   for(rsp=0; rsp<param->d_orth_vol[axis]; rsp++)
       {
       for(j=0; j<(int)floor(NCOLOR/2); j++)
          {
@@ -1015,7 +1013,6 @@ void perform_measures_localobs_with_tracedef(Gauge_Conf const * const GC,
       {
       fprintf(datafilep, "%.12g %.12g ", polyre[i], polyim[i]);
       }
-
    // topological observables
    #if( (STDIM==4 && NCOLOR>1) || (STDIM==2 && NCOLOR==1) )
      int err;

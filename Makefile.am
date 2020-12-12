@@ -266,7 +266,7 @@ yang_mills_tubeadj_disc_SOURCES=./src/yang_mills_tubeadj_disc.c \
 yang_mills_tubeadj_disc_long_SOURCES=./src/yang_mills_tubeadj_disc_long.c \
                                      $(everything)
 
-test_lexicographic_orth_SOURCES=./src/test_lexicographic_orth.c \
+test_lexicographic_orth_SOURCES=./tests/test_lexicographic_orth.c \
 				$(everything)
    
 AM_CFLAGS = -std=c99 -O2 -Wall -Wextra -Werror -pedantic -Wconversion @OPENMP_CFLAGS@
