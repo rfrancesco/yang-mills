@@ -539,15 +539,15 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
      exit(EXIT_FAILURE);
      }
 
-   for(i=0; i<param->d_space_vol; i++)
+   for(rsp=0; rsp<param->d_space_vol; rsp++)
       {
-      err=posix_memalign((void**)&(rep[i]), (size_t)DOUBLE_ALIGN, (size_t) (int)floor(NCOLOR/2) * sizeof(double));
+      err=posix_memalign((void**)&(rep[rsp]), (size_t)DOUBLE_ALIGN, (size_t) (int)floor(NCOLOR/2) * sizeof(double));
       if(err!=0)
         {
         fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
         }
-      err=posix_memalign((void**)&(imp[i]), (size_t)DOUBLE_ALIGN, (size_t) (int)floor(NCOLOR/2) * sizeof(double));
+      err=posix_memalign((void**)&(imp[rsp]), (size_t)DOUBLE_ALIGN, (size_t) (int)floor(NCOLOR/2) * sizeof(double));
       if(err!=0)
         {
         fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
@@ -555,12 +555,12 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
         }
       }
 
-   for(i=0; i<param->d_space_vol; i++)
+   for(rsp=0; rsp<param->d_space_vol; i++)
       {
       for(j=0; j<(int)floor(NCOLOR/2); j++)
          {
-         rep[i][j] = 0.0;
-         imp[i][j] = 0.0;
+         rep[rsp][j] = 0.0;
+         imp[rsp][j] = 0.0;
          }
       }
 
@@ -582,11 +582,13 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
          r=nnp(geo, r, 0);
          }
 
-       rep[rsp][0] = retr(&matrix);
-       imp[rsp][0] = imtr(&matrix);
+      // Polyakov loop Tr(P)
+      rep[rsp][0] = retr(&matrix);
+      imp[rsp][0] = imtr(&matrix);
 
-       equal(&matrix2, &matrix);
+      equal(&matrix2, &matrix);
 
+      // Powers of the Polyakov loop Tr(P^k)
       for(k=1; k<(int)floor(NCOLOR/2.0); k++)
          {
          times_equal(&matrix2, &matrix);
@@ -597,10 +599,10 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
 
     for(j=0; j<(int)floor(NCOLOR/2); j++)
        {
-       for(i=0; i<param->d_space_vol; i++)
+       for(rsp=0; rsp<param->d_space_vol; i++)
           {
-          repoly[j] += rep[i][j];
-          impoly[j] += imp[i][j];
+          repoly[j] += rep[rsp][j];
+          impoly[j] += imp[rsp][j];
           }
        }
 
@@ -610,10 +612,10 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
       impoly[j] *= param->d_inv_space_vol;
       }
 
-   for(i=0; i<param->d_space_vol; i++)
+   for(rsp=0; rsp<param->d_space_vol; i++)
       {
-      free(rep[i]);
-      free(imp[i]);
+      free(rep[rsp]);
+      free(imp[rsp]);
       }
    free(rep);
    free(imp);
