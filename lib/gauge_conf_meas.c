@@ -599,7 +599,7 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
 
     for(j=0; j<(int)floor(NCOLOR/2); j++)
        {
-       for(rsp=0; rsp<param->d_space_vol; i++)
+       for(rsp=0; rsp<param->d_space_vol; rsp++)
           {
           repoly[j] += rep[rsp][j];
           impoly[j] += imp[rsp][j];
@@ -612,7 +612,123 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
       impoly[j] *= param->d_inv_space_vol;
       }
 
-   for(rsp=0; rsp<param->d_space_vol; i++)
+   for(rsp=0; rsp<param->d_space_vol; rsp++)
+      {
+      free(rep[rsp]);
+      free(imp[rsp]);
+      }
+   free(rep);
+   free(imp);
+   }
+
+// compute the mean Polyakov loop and its powers (trace of) in the presence of trace deformation
+// EXPERIMENTAL: generalized version, lets you choose the axis along which the loop is calculated
+// polyakov_for_tracedef = polyakov_for_tracedef_along_axis(..., axis=0, ...)
+void polyakov_for_tracedef_along_axis(Gauge_Conf const * const GC,
+                            Geometry const * const geo,
+                            GParam const * const param,
+                            int axis,
+                            double *repoly,
+                            double *impoly)
+   {
+   long rsp;
+   double **rep, **imp;
+   int j, err;
+   long i;
+
+   for(j=0;j<(int)floor(NCOLOR/2);j++)
+      {
+      repoly[j]=0.0;
+      impoly[j]=0.0;
+      }
+
+   err=posix_memalign((void**)&rep, (size_t)DOUBLE_ALIGN, (size_t) param->d_orth_vol[axis] * sizeof(double*));
+   if(err!=0)
+     {
+     fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
+     exit(EXIT_FAILURE);
+     }
+   err=posix_memalign((void**)&imp, (size_t)DOUBLE_ALIGN, (size_t) param->d_orth_vol[axis] * sizeof(double*));
+   if(err!=0)
+     {
+     fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
+     exit(EXIT_FAILURE);
+     }
+
+   for(rsp=0; rsp<param->d_orth_vol[axis]; rsp++)
+      {
+      err=posix_memalign((void**)&(rep[rsp]), (size_t)DOUBLE_ALIGN, (size_t) (int)floor(NCOLOR/2) * sizeof(double));
+      if(err!=0)
+        {
+        fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+        }
+      err=posix_memalign((void**)&(imp[rsp]), (size_t)DOUBLE_ALIGN, (size_t) (int)floor(NCOLOR/2) * sizeof(double));
+      if(err!=0)
+        {
+        fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+        }
+      }
+
+   for(rsp=0; rsp<param->d_orth_vol[axis]; i++)
+      {
+      for(j=0; j<(int)floor(NCOLOR/2); j++)
+         {
+         rep[rsp][j] = 0.0;
+         imp[rsp][j] = 0.0;
+         }
+      }
+
+   #ifdef OPENMP_MODE
+   #pragma omp parallel for num_threads(NTHREADS) private(rsp)
+   #endif
+   for(rsp=0; rsp<param->d_orth_vol[axis]; rsp++)
+      {
+      long r;
+      int k;
+      GAUGE_GROUP matrix, matrix2;
+
+      r=siorth_and_par_to_si(geo, rsp, 0, axis);
+
+      one(&matrix);
+      for(k=0; k<param->d_size[axis]; k++)
+         {
+         times_equal(&matrix, &(GC->lattice[r][axis]));
+         r=nnp(geo, r, axis);
+         }
+
+      // Polyakov loop Tr(P)
+      rep[rsp][0] = retr(&matrix);
+      imp[rsp][0] = imtr(&matrix);
+
+      equal(&matrix2, &matrix);
+
+      // Powers of the Polyakov loop Tr(P^k)
+      for(k=1; k<(int)floor(NCOLOR/2.0); k++)
+         {
+         times_equal(&matrix2, &matrix);
+         rep[rsp][k] = retr(&matrix2);
+         imp[rsp][k] = imtr(&matrix2);
+         }
+      }
+
+    for(j=0; j<(int)floor(NCOLOR/2); j++)
+       {
+       for(rsp=0; rsp<param->d_orth_vol[axis]; rsp++)
+          {
+          repoly[j] += rep[rsp][j];
+          impoly[j] += imp[rsp][j];
+          }
+       }
+
+   for(j=0; j<(int)floor(NCOLOR/2.0); j++)
+      {
+      repoly[j] *= param->d_inv_orth_vol[axis];
+      impoly[j] *= param->d_inv_orth_vol[axis];
+      }
+
+   for(rsp=0; rsp<param->d_orth_vol[axis]; rsp++)
       {
       free(rep[rsp]);
       free(imp[rsp]);

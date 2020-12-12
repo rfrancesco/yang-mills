@@ -229,6 +229,12 @@ void polyakov_for_tracedef(Gauge_Conf const * const GC,
                            GParam const * const param,
                            double *repoly,
                            double *impoly);
+void polyakov_for_tracedef_along_axis(Gauge_Conf const * const GC,
+                                      Geometry const * const geo,
+                                      GParam const * const param,
+                                      int axis,
+                                      double *repoly,
+                                      double *impoly);
 double loc_topcharge(Gauge_Conf const * const GC,
                      Geometry const * const geo,
                      GParam const * const param,
