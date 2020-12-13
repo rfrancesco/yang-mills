@@ -831,7 +831,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
      // compute old action
      times(&tmp_matrix, &(GC->lattice[r][i]), &stap_w);
      action_old=param->d_beta*(1.0-retr(&tmp_matrix));
-     if(i==0) // just if we are updating a temporal link
+     if(i<param->d_tracedef_dim) // just if we are updating a link along a compactified dimension
        {
        // "staple" for trace deformation
        calcstaples_tracedef(GC, geo, param, r, i, &stap_td);
@@ -844,6 +844,10 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
           times_equal(&tmp_matrix, &poly);
           rpart=NCOLOR*retr(&tmp_matrix);
           ipart=NCOLOR*imtr(&tmp_matrix);
+          // Action deformation term ΔS = h \sum_n \int_R^3 |Tr P^n|^2
+          // With d compactified dimensions, ΔS = h_{n,d} \sum_{n1...nd} \int_R^{STDIM-d} |Tr P1^n1 ... Pd^nd |^2
+          // I am going to implement this part just for d = 1,2, for now
+          // [TODO!!!]
           action_old += param->d_h[j]*(rpart*rpart+ipart*ipart);
           }
        }
@@ -1103,8 +1107,8 @@ void update_with_trace_def(Gauge_Conf * GC,
       a[r]=0;
       }
 
-   // heatbath on spatial links
-   for(dir=1; dir<STDIM; dir++)
+   // heatbath on non-compactified links
+   for(dir=param->d_tracedef_dim; dir<STDIM; dir++)
       {
       #ifdef THETA_MODE
       compute_clovers(GC, geo, param, dir);
@@ -1127,30 +1131,33 @@ void update_with_trace_def(Gauge_Conf * GC,
          }
       }
 
-   // metropolis on temporal links
-   for(t=0; t<param->d_size[0]; t++)
+   // metropolis on compactified links
+   for(dir=0; dir<param->d_tracedef_dim; dir++)
       {
-      #ifdef THETA_MODE
-      compute_clovers(GC, geo, param, 0);
-      #endif
+      for(t=0; t<param->d_size[dir]; t++)
+        {
+        #ifdef THETA_MODE
+        compute_clovers(GC, geo, param, dir);
+        #endif
 
-      #ifdef OPENMP_MODE
-      #pragma omp parallel for num_threads(NTHREADS) private(r)
-      #endif
-      for(r=0; r<(param->d_space_vol)/2; r++)
-         {
-         long r4=sisp_and_t_to_si(geo, r, t);
-         a[r]+=metropolis_with_tracedef(GC, geo, param, r4, 0, maxhits);
-         }
+        #ifdef OPENMP_MODE
+        #pragma omp parallel for num_threads(NTHREADS) private(r)
+        #endif
+        for(r=0; r<(param->d_orth_vol[dir])/2; r++)
+          {
+          long r4=siorth_and_par_to_si(geo, r, t, dir);
+          a[r]+=metropolis_with_tracedef(GC, geo, param, r4, dir, maxhits);
+          }
 
-      #ifdef OPENMP_MODE
-      #pragma omp parallel for num_threads(NTHREADS) private(r)
-      #endif
-      for(r=(param->d_space_vol)/2; r<(param->d_space_vol); r++)
-         {
-         long r4=sisp_and_t_to_si(geo, r, t);
-         a[r]+=metropolis_with_tracedef(GC, geo, param, r4, 0, maxhits);
-         }
+        #ifdef OPENMP_MODE
+        #pragma omp parallel for num_threads(NTHREADS) private(r)
+        #endif
+        for(r=(param->d_orth_vol[dir])/2; r<(param->d_orth_vol[dir]); r++)
+          {
+          long r4=siorth_and_par_to_si(geo, r, t, dir);
+          a[r]+=metropolis_with_tracedef(GC, geo, param, r4, dir, maxhits);
+          }
+        }
       }
 
    asum=0;
