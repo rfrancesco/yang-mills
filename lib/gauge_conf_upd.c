@@ -826,6 +826,13 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
 
   acc=0;
 
+  if(param->d_tracedef_dim > 2)
+    {
+    // This is not implemented (see next comments)
+    fprintf(stderr, "Tracedef configurations with more than 2 compactified dimensions have not been implemented yet. (%s, %d)\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
+    }
+
   for(hits=0; hits<numhits; hits++)
      {
      // compute old action
@@ -839,18 +846,52 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
        // trace deformation contribution to action_old
        times(&poly, &(GC->lattice[r][i]), &stap_td);
        one(&tmp_matrix);
+
+       // Action deformation term ΔS = h \sum_n \int_R^3 |Tr P^n|^2
+       // With d compactified dimensions, ΔS = h_{n,d} \sum_{n1...nd} \int_R^{STDIM-d} |Tr P1^n1 ... Pd^nd |^2
+       // I am going to implement this part just for d = 1,2, for now
+       // Assumptions: - The trace-deformation coefficients are the same, for all compactified dimensions
+       //              - The coefficients corresponding to mixed terms are h[0] for simplicity
+       //                This is a hack, just to quickly test what happens for R^4 -> T^2 x R^2.
+       //                If something interesting arises, then this MUST BE EXPANDED to a proper choice of coefficients and d.
+
        for(j=0; j<(int)floor(NCOLOR/2.0); j++)
           {
           times_equal(&tmp_matrix, &poly);
           rpart=NCOLOR*retr(&tmp_matrix);
           ipart=NCOLOR*imtr(&tmp_matrix);
-          // Action deformation term ΔS = h \sum_n \int_R^3 |Tr P^n|^2
-          // With d compactified dimensions, ΔS = h_{n,d} \sum_{n1...nd} \int_R^{STDIM-d} |Tr P1^n1 ... Pd^nd |^2
-          // I am going to implement this part just for d = 1,2, for now
-          // [TODO!!!]
           action_old += param->d_h[j]*(rpart*rpart+ipart*ipart);
           }
+
+       if(param->d_tracedef_dim == 2)
+         {
+         int mixed_term_dir = 1 - i;  // This is a hack: basically, this is the other compactified direction. Only works if d_tracedef_dim == 2.
+         GAUGE_GROUP poly_mixed_term; // == Polyakov loop, from r -> r, along the other compactified direction.
+         calcstaples_tracedef(GC, geo, param, r, mixed_term_dir, &poly_mixed_term);
+         times(&poly_mixed_term, &(GC->lattice[r][mixed_term_dir]), &poly_mixed_term);
+
+         // |Tr (P1P2)|^2
+         one(&tmp_matrix);
+         times_equal(&tmp_matrix, &poly);
+         times_equal(&tmp_matrix, &poly_mixed_term);
+         times_equal(&tmp_matrix, )
+
+         rpart=NCOLOR*retr(&tmp_matrix);
+         ipart=NCOLOR*imtr(&tmp_matrix);
+
+         // |Tr (P1P2^\dag)|^2
+         one(&tmp_matrix);
+         times_equal(&tmp_matrix, &poly);
+         times_equal_dag(&tmp_matrix, &poly_mixed_term);
+
+         rpart+=NCOLOR*retr(&tmp_matrix);
+         ipart+=NCOLOR*imtr(&tmp_matrix);
+
+         action_old += param->d_h[0]*(rpart*rpart+ipart*ipart);
+         }
+
        }
+
 
      // compute the update to be proposed
      one(&tmp_matrix);
@@ -870,7 +911,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
      // compute the new action
      times(&tmp_matrix, &new_link, &stap_w);
      action_new=param->d_beta*(1.0-retr(&tmp_matrix));
-     if(i==0) // just if we are updating a temporal link
+     if(i<param->d_tracedef_dim) // just if we are updating a compactified link
        {
        // trace deformation contribution to action_new
        times(&poly, &new_link, &stap_td);
@@ -882,6 +923,33 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
           ipart=NCOLOR*imtr(&tmp_matrix);
           action_new += param->d_h[j]*(rpart*rpart+ipart*ipart);
           }
+
+       if(param->d_tracedef_dim == 2)
+         {
+         int mixed_term_dir = 1 - i;  // This is a hack: basically, this is the other compactified direction. Only works if d_tracedef_dim == 2.
+         GAUGE_GROUP poly_mixed_term; // == Polyakov loop, from r -> r, along the other compactified direction.
+         calcstaples_tracedef(GC, geo, param, r, mixed_term_dir, &poly_mixed_term);
+         times(&poly_mixed_term, &(GC->lattice[r][mixed_term_dir]), &poly_mixed_term);
+
+         // |Tr (P1P2)|^2
+         one(&tmp_matrix);
+         times_equal(&tmp_matrix, &poly);
+         times_equal(&tmp_matrix, &poly_mixed_term);
+
+         rpart=NCOLOR*retr(&tmp_matrix);
+         ipart=NCOLOR*imtr(&tmp_matrix);
+
+         // |Tr (P1P2^\dag)|^2
+         one(&tmp_matrix);
+         times_equal(&tmp_matrix, &poly);
+         times_equal_dag(&tmp_matrix, &poly_mixed_term);
+
+         rpart+=NCOLOR*retr(&tmp_matrix);
+         ipart+=NCOLOR*imtr(&tmp_matrix);
+
+         action_new += param->d_h[0]*(rpart*rpart+ipart*ipart);
+         }
+
        }
 
      if(casuale()< exp(action_old-action_new))
