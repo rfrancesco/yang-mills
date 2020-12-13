@@ -208,14 +208,14 @@ void calcstaples_tracedef(Gauge_Conf const * const GC,
                           Geometry const * const geo,
                           GParam const * const param,
                           long r,
-                          int i,
+                          int dir,
                           GAUGE_GROUP * M)
   {
-  if(i!=0)
+  if(dir>=param->d_tracedef_dim)
     {
     zero(M);
     #ifdef DEBUG
-    fprintf(stderr, "Using calcstaples_tracedef for a non-temporal link (%s, %d)\n", __FILE__, __LINE__);
+    fprintf(stderr, "Using calcstaples_tracedef for a non-compactified link (%s, %d)\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
     #endif
     }
@@ -228,10 +228,10 @@ void calcstaples_tracedef(Gauge_Conf const * const GC,
     one(&aux);
 
     rnext=r;
-    for(j=1; j<param->d_size[0]; j++)
+    for(j=1; j<param->d_size[dir]; j++)
        {
-       rnext=nnp(geo, rnext, 0);
-       times_equal(&aux, &(GC->lattice[rnext][0]));
+       rnext=nnp(geo, rnext, dir);
+       times_equal(&aux, &(GC->lattice[rnext][dir]));
        }
 
     equal(M, &aux);
