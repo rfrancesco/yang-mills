@@ -874,7 +874,6 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
          one(&tmp_matrix);
          times_equal(&tmp_matrix, &poly);
          times_equal(&tmp_matrix, &poly_mixed_term);
-         times_equal(&tmp_matrix, )
 
          rpart=NCOLOR*retr(&tmp_matrix);
          ipart=NCOLOR*imtr(&tmp_matrix);
