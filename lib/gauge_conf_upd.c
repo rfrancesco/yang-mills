@@ -1103,8 +1103,8 @@ void update_with_trace_def(Gauge_Conf * GC,
       a[r]=0;
       }
 
-   // heatbath on spatial links
-   for(dir=1; dir<STDIM; dir++)
+   // heatbath on non-compactified links
+   for(dir=param->d_tracedef_dim; dir<STDIM; dir++)
       {
       #ifdef THETA_MODE
       compute_clovers(GC, geo, param, dir);
@@ -1127,32 +1127,34 @@ void update_with_trace_def(Gauge_Conf * GC,
          }
       }
 
-   // metropolis on temporal links
-   for(t=0; t<param->d_size[0]; t++)
+   // metropolis on compactified links
+   for(dir=0; dir<param->d_tracedef_dim; dir++)
       {
-      #ifdef THETA_MODE
-      compute_clovers(GC, geo, param, 0);
-      #endif
-
-      #ifdef OPENMP_MODE
-      #pragma omp parallel for num_threads(NTHREADS) private(r)
-      #endif
-      for(r=0; r<(param->d_space_vol)/2; r++)
+      for(t=0; t<param->d_size[0]; t++)
          {
-         long r4=sisp_and_t_to_si(geo, r, t);
-         a[r]+=metropolis_with_tracedef(GC, geo, param, r4, 0, maxhits);
-         }
+         #ifdef THETA_MODE
+         compute_clovers(GC, geo, param, dir);
+         #endif
 
-      #ifdef OPENMP_MODE
-      #pragma omp parallel for num_threads(NTHREADS) private(r)
-      #endif
-      for(r=(param->d_space_vol)/2; r<(param->d_space_vol); r++)
-         {
-         long r4=sisp_and_t_to_si(geo, r, t);
-         a[r]+=metropolis_with_tracedef(GC, geo, param, r4, 0, maxhits);
+         #ifdef OPENMP_MODE
+         #pragma omp parallel for num_threads(NTHREADS) private(r)
+         #endif
+         for(r=0; r<(param->d_space_vol)/2; r++)
+            {
+            long r4=sisp_and_t_to_si(geo, r, t);
+            a[r]+=metropolis_with_tracedef(GC, geo, param, r4, dir, maxhits);
+            }
+
+         #ifdef OPENMP_MODE
+         #pragma omp parallel for num_threads(NTHREADS) private(r)
+         #endif
+         for(r=(param->d_space_vol)/2; r<(param->d_space_vol); r++)
+            {
+            long r4=sisp_and_t_to_si(geo, r, t);
+            a[r]+=metropolis_with_tracedef(GC, geo, param, r4, dir, maxhits);
+            }
          }
       }
-
    asum=0;
    #ifdef OPENMP_MODE
    #pragma omp parallel for reduction(+:asum) private(r)
@@ -1164,8 +1166,8 @@ void update_with_trace_def(Gauge_Conf * GC,
 
    *acc=((double)asum)*param->d_inv_vol/(double)maxhits;
 
-   // overrelax spatial links
-   for(dir=1; dir<STDIM; dir++)
+   // overrelax non-compactified links
+   for(dir=param->d_tracedef_dim; dir<STDIM; dir++)
       {
       #ifdef THETA_MODE
       compute_clovers(GC, geo, param, dir);
