@@ -826,12 +826,17 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
 
   acc=0;
 
+  if(param->d_tracedef_dim > 2 || (param->d_tracedef_dim > 1 && NCOLOR>3))
+    {
+    fprintf(stderr, "Tracedef configurations with more than 2 compactified dimensions, or with 2 compactified dimensions and N_c != 3 have not been implemented yet. (%s, %d)\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
+    }
   for(hits=0; hits<numhits; hits++)
      {
      // compute old action
      times(&tmp_matrix, &(GC->lattice[r][i]), &stap_w);
      action_old=param->d_beta*(1.0-retr(&tmp_matrix));
-     if(i==0) // just if we are updating a temporal link
+     if(i<param->d_tracedef_dim) // just if we are updating a compactified link
        {
        // "staple" for trace deformation
        calcstaples_tracedef(GC, geo, param, r, i, &stap_td);
@@ -846,6 +851,38 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
           ipart=NCOLOR*imtr(&tmp_matrix);
           action_old += param->d_h[j]*(rpart*rpart+ipart*ipart);
           }
+
+       // Implementation just for d_tracedef_dim == 2 and N_c == 3!
+       // This is a hack. If the results are promising, this must
+       // be rewritten for the general case!
+
+       if(param->d_tracedef_dim == 2)
+         {
+         int mixed_term_dir = 1 - i; // The other compactified direction
+         GAUGE_GROUP poly_mixed_term; // Polyakov loop, from r->r, along the other compactified dim
+
+         calcstaples_tracedef(GC, geo, param, r, mixed_term_dir, &poly_mixed_term);
+         times(&poly_mixed_term, &(GC->lattice[r][mixed_term_dir]), &poly_mixed_term);
+
+         // |Tr(P1P2)|^2
+         one(&tmp_matrix);
+         times_equal(&tmp_matrix, &poly);
+         times_equal(&tmp_matrix, &poly_mixed_term);
+
+         rpart=NCOLOR*retr(&tmp_matrix);
+         ipart=NCOLOR*imtr(&tmp_matrix);
+
+         // |Tr(P1P2^\dag)|^2
+         one(&tmp_matrix);
+         times_equal(&tmp_matrix, &poly);
+         times_equal_dag(&tmp_matrix, &poly_mixed_term);
+
+         rpart+=NCOLOR*retr(&tmp_matrix);
+         ipart+=NCOLOR*imtr(&tmp_matrix);
+
+         action_old += param->d_h[0]*(rpart*rpart + ipart*ipart);
+
+         }
        }
 
      // compute the update to be proposed
@@ -866,7 +903,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
      // compute the new action
      times(&tmp_matrix, &new_link, &stap_w);
      action_new=param->d_beta*(1.0-retr(&tmp_matrix));
-     if(i==0) // just if we are updating a temporal link
+     if(i<param->d_tracedef_dim) // just if we are updating a temporal link
        {
        // trace deformation contribution to action_new
        times(&poly, &new_link, &stap_td);
@@ -878,6 +915,38 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
           ipart=NCOLOR*imtr(&tmp_matrix);
           action_new += param->d_h[j]*(rpart*rpart+ipart*ipart);
           }
+       // Implementation just for d_tracedef_dim == 2 and N_c == 3!
+       // This is a hack. If the results are promising, this must
+       // be rewritten for the general case!
+
+       if(param->d_tracedef_dim == 2)
+         {
+         int mixed_term_dir = 1 - i; // The other compactified direction
+         GAUGE_GROUP poly_mixed_term; // Polyakov loop, from r->r, along the other compactified dim
+
+         calcstaples_tracedef(GC, geo, param, r, mixed_term_dir, &poly_mixed_term);
+         times(&poly_mixed_term, &(GC->lattice[r][mixed_term_dir]), &poly_mixed_term);
+
+         // |Tr(P1P2)|^2
+         one(&tmp_matrix);
+         times_equal(&tmp_matrix, &poly);
+         times_equal(&tmp_matrix, &poly_mixed_term);
+
+         rpart=NCOLOR*retr(&tmp_matrix);
+         ipart=NCOLOR*imtr(&tmp_matrix);
+
+         // |Tr(P1P2^\dag)|^2
+         one(&tmp_matrix);
+         times_equal(&tmp_matrix, &poly);
+         times_equal_dag(&tmp_matrix, &poly_mixed_term);
+
+         rpart+=NCOLOR*retr(&tmp_matrix);
+         ipart+=NCOLOR*imtr(&tmp_matrix);
+
+         action_new += param->d_h[0]*(rpart*rpart + ipart*ipart);
+
+         }
+
        }
 
      if(casuale()< exp(action_old-action_new))
