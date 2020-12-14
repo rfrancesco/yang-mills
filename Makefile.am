@@ -24,8 +24,7 @@ bin_PROGRAMS = conf_check \
                yang_mills_tube_disc_long \
                yang_mills_tubeadj_disc \
                yang_mills_tubeadj_disc_long \
-	       	   test_lexicographic_orth \
-			   test_polyakov_w_axis
+	       	   test_lexicographic_orth 
 
 align = ./include/aligncheck.h \
         ./lib/aligncheck.c
