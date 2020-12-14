@@ -1233,7 +1233,7 @@ void update_with_trace_def(Gauge_Conf * GC,
       asum+=(long)a[r];
       }
 
-   *acc=((double)asum)*param->d_inv_vol/(double)maxhits;
+   *acc=((double)asum)*param->d_inv_vol/(double)(maxhits*param->d_tracedef_dim);
 
    // overrelax non-compactified links
    for(dir=param->d_tracedef_dim; dir<STDIM; dir++)
