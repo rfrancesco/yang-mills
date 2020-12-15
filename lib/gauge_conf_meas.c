@@ -1004,8 +1004,12 @@ void perform_measures_localobs_with_tracedef(Gauge_Conf const * const GC,
    int i;
    double plaqs, plaqt, polyre[NCOLOR/2+1], polyim[NCOLOR/2+1]; // +1 just to avoid warning if NCOLOR=1
 
+   double polyre_2[NCOLOR/2+1], polyim_2[NCOLOR/2+1];           // TODO This is a hack. Rewrite this part to
+                                                                // have polyre/im[param->d_tracedef_dim][NCOLOR/2+1];
+
    plaquette(GC, geo, param, &plaqs, &plaqt);
-   polyakov_for_tracedef(GC, geo, param, polyre, polyim);
+   polyakov_for_tracedef_along_axis(GC, geo, param, 0, polyre, polyim);
+   polyakov_for_tracedef_along_axis(GC, geo, param, 1, polyre_2, polyim_2);
 
    fprintf(datafilep, "%.12g %.12g ", plaqs, plaqt);
 
@@ -1013,6 +1017,15 @@ void perform_measures_localobs_with_tracedef(Gauge_Conf const * const GC,
       {
       fprintf(datafilep, "%.12g %.12g ", polyre[i], polyim[i]);
       }
+
+   if(param->d_tracedef_dim==2) // TODO: rewrite this with a loop on compactified dimensions...!
+     {
+     for(i=0; i<(int)floor(NCOLOR/2); i++)
+        {
+        fprintf(datafilep, "%.12g %.12g ", polyre_2[i], polyim_2[i]);
+        }
+     }
+
    // topological observables
    #if( (STDIM==4 && NCOLOR>1) || (STDIM==2 && NCOLOR==1) )
      int err;
