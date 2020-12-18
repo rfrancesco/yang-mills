@@ -268,8 +268,6 @@ yang_mills_tubeadj_disc_long_SOURCES=./src/yang_mills_tubeadj_disc_long.c \
 
 test_lexicographic_orth_SOURCES=./tests/test_lexicographic_orth.c \
 				$(everything)
-test_polyakov_w_axis_SOURCES=./tests/test_polyakov_w_axis.c \
-				$(everything)
    
 AM_CFLAGS = -std=c99 -O2 -Wall -Wextra -Werror -pedantic -Wconversion @OPENMP_CFLAGS@
 
