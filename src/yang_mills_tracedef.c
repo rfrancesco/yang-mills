@@ -218,6 +218,8 @@ int main (int argc, char **argv)
                 __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
       #endif
 
+      printf("Compiled on %s - %s\n", __DATE__, __TIME__);
+
       print_template_input();
 
 
