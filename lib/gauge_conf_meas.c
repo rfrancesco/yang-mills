@@ -735,7 +735,108 @@ void polyakov_for_tracedef_along_axis(Gauge_Conf const * const GC,
    free(imp);
    }
 
+void polyakov_for_tracedef_cross(Gauge_Conf const * const GC,
+                                      Geometry const * const geo,
+                                      GParam const * const param,
+                                      int axis1,
+                                      int axis2,
+                                      double *repoly_p1p2,
+                                      double *impoly_p1p2,
+                                      double *repoly_p1p2dag,
+                                      double *impoly_p1p2dag)
+   {
+   long r;
+   double *re_p1p2, *im_p1p2, *re_p1p2dag, *im_p1p2dag;
+   int err;
+   // This only computes Tr[P1P2] and Tr[P1P2^\dag]
+   // No other powers are computed
 
+   // initialization
+   *repoly_p1p2 = 0;
+   *impoly_p1p2 = 0;
+   *repoly_p1p2dag = 0;
+   *impoly_p1p2dag = 0;
+
+   err=posix_memalign((void*)&re_p1p2, (size_t)DOUBLE_ALIGN, (size_t) param->d_volume * sizeof(double));
+   if(err!=0)
+     {
+     fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
+     exit(EXIT_FAILURE);
+     }
+
+   err=posix_memalign((void*)&im_p1p2, (size_t)DOUBLE_ALIGN, (size_t) param->d_volume * sizeof(double));
+   if(err!=0)
+     {
+     fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
+     exit(EXIT_FAILURE);
+     }
+   err=posix_memalign((void*)&re_p1p2dag, (size_t)DOUBLE_ALIGN, (size_t) param->d_volume * sizeof(double));
+   if(err!=0)
+     {
+     fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
+     exit(EXIT_FAILURE);
+     }
+   err=posix_memalign((void*)&im_p1p2dag, (size_t)DOUBLE_ALIGN, (size_t) param->d_volume * sizeof(double));
+   if(err!=0)
+     {
+     fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
+     exit(EXIT_FAILURE);
+     }
+
+   #ifdef OPENMP_MODE
+   #pragma omp parallel for num_threads(NTHREADS) private(r)
+   #endif
+   for(r=0; r<param->d_volume; r++)
+     {
+     GAUGE_GROUP P1, P2, matrix;
+     int k, r1, r2;
+     r1 = r;
+     r2 = r;
+     one(&P1);
+     for(k=0; k<param->d_size[axis1]; k++)
+       {
+       times_equal(&P1, &(GC->lattice[r1][axis1]));
+       r1=nnp(geo, r1, axis1);
+       }
+     one(&P2);
+     for(k=0; k<param->d_size[axis2]; k++)
+       {
+       times_equal(&P2, &(GC->lattice[r2][axis2]));
+       r2=nnp(geo, r2, axis2);
+       }
+
+     one(&matrix);
+     times_equal(&matrix, &P1);
+     times_equal(&matrix, &P2);
+     re_p1p2[r] = retr(&matrix);
+     im_p1p2[r] = retr(&matrix);
+
+     one(&matrix);
+     times_equal(&matrix, &P1);
+     times_equal_dag(&matrix, &P2);
+     re_p1p2dag[r] = retr(&matrix);
+     im_p1p2dag[r] = retr(&matrix);
+
+     }
+
+   for(r=0; r<param->d_volume; r++)
+     {
+       *repoly_p1p2 += re_p1p2[r];
+       *impoly_p1p2 += im_p1p2[r];
+       *repoly_p1p2dag += re_p1p2dag[r];
+       *impoly_p1p2dag += im_p1p2dag[r];
+     }
+
+   *repoly_p1p2 *=param->d_inv_vol;
+   *impoly_p1p2 *=param->d_inv_vol;
+   *repoly_p1p2dag *=param->d_inv_vol;
+   *impoly_p1p2dag *=param->d_inv_vol;
+
+   free(re_p1p2);
+   free(im_p1p2);
+   free(re_p1p2dag);
+   free(im_p1p2dag);
+   }
 // compute the local topological charge at point r
 // see readme for more details
 double loc_topcharge(Gauge_Conf const * const GC,
