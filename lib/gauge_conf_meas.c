@@ -789,7 +789,7 @@ void polyakov_for_tracedef_cross(Gauge_Conf const * const GC,
    for(r=0; r<param->d_volume; r++)
      {
      GAUGE_GROUP P1, P2, matrix;
-     int k, r1, r2;
+     long k, r1, r2;
      r1 = r;
      r2 = r;
      one(&P1);
