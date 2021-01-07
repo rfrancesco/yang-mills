@@ -1205,6 +1205,42 @@ void perform_measures_localobs_with_tracedef(Gauge_Conf const * const GC,
      }
    }
 
+void perform_measures_polyakov_with_tracedef(Gauge_Conf const * const GC,
+                                             Geometry const * const geo,
+                                             GParam const * const param,
+                                             FILE *datafilep)
+   {
+   double re_p1p2, im_p1p2, re_p1p2dag, im_p1p2dag;
+int i;
+   double polyre[NCOLOR/2+1], polyim[NCOLOR/2+1]; // +1 just to avoid warning if NCOLOR=1
+
+   double polyre_2[NCOLOR/2+1], polyim_2[NCOLOR/2+1];           // TODO This is a hack. Rewrite this part to
+                                                                // have polyre/im[param->d_tracedef_dim][NCOLOR/2+1];
+
+   polyakov_for_tracedef_along_axis(GC, geo, param, 0, polyre, polyim);
+   polyakov_for_tracedef_along_axis(GC, geo, param, 1, polyre_2, polyim_2);
+
+   // Print Polyakov loops along axis 0, 1
+   for(i=0; i<(int)floor(NCOLOR/2); i++)
+      {
+      fprintf(datafilep, "%.12g %.12g ", polyre[i], polyim[i]);
+      }
+
+   for(i=0; i<(int)floor(NCOLOR/2); i++)
+      {
+      fprintf(datafilep, "%.12g %.12g ", polyre_2[i], polyim_2[i]);
+      }
+   // Print cross terms P0P1, P0P1_\dag
+   polyakov_for_tracedef_cross(GC, geo, param, 0, 1, &re_p1p2, &im_p1p2, &re_p1p2dag, &im_p1p2dag);
+
+   fprintf(datafilep, "%.12g %.12g ", re_p1p2, im_p1p2);
+   fprintf(datafilep, "%.12g %.12g ", re_p1p2dag, im_p1p2dag);
+   fprintf(datafilep, "\n");
+
+   fflush(datafilep);
+
+
+   }
 
 void perform_measures_localobs_fundadj(Gauge_Conf const * const GC,
                                        Geometry const * const geo,
