@@ -18,6 +18,7 @@ bin_PROGRAMS = conf_check \
                yang_mills_polycorradj_long \
                yang_mills_t0 \
                yang_mills_tracedef \
+			   yang_mills_tracedef_polyakov \
                yang_mills_tube_conn \
                yang_mills_tube_conn_long \
                yang_mills_tube_disc \
@@ -247,6 +248,9 @@ yang_mills_t0_SOURCES=./src/yang_mills_t0.c \
 
 yang_mills_tracedef_SOURCES=./src/yang_mills_tracedef.c \
                             $(everything)
+
+yang_mills_tracedef_polyakov_SOURCES=./src_yang_mills_tracedef_polyakov.c \
+							$(everything)
 
 yang_mills_tube_conn_SOURCES=./src/yang_mills_tube_conn.c \
                              $(everything)

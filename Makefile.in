@@ -96,7 +96,9 @@ bin_PROGRAMS = conf_check$(EXEEXT) debug_rng$(EXEEXT) \
 	yang_mills_polycorr_higgs_long$(EXEEXT) \
 	yang_mills_polycorradj$(EXEEXT) \
 	yang_mills_polycorradj_long$(EXEEXT) yang_mills_t0$(EXEEXT) \
-	yang_mills_tracedef$(EXEEXT) yang_mills_tube_conn$(EXEEXT) \
+	yang_mills_tracedef$(EXEEXT) \
+	yang_mills_tracedef_polyakov$(EXEEXT) \
+	yang_mills_tube_conn$(EXEEXT) \
 	yang_mills_tube_conn_long$(EXEEXT) \
 	yang_mills_tube_disc$(EXEEXT) \
 	yang_mills_tube_disc_long$(EXEEXT) \
@@ -254,6 +256,11 @@ am_yang_mills_tracedef_OBJECTS = ./src/yang_mills_tracedef.$(OBJEXT) \
 	$(am__objects_15)
 yang_mills_tracedef_OBJECTS = $(am_yang_mills_tracedef_OBJECTS)
 yang_mills_tracedef_LDADD = $(LDADD)
+am_yang_mills_tracedef_polyakov_OBJECTS =  \
+	./src_yang_mills_tracedef_polyakov.$(OBJEXT) $(am__objects_15)
+yang_mills_tracedef_polyakov_OBJECTS =  \
+	$(am_yang_mills_tracedef_polyakov_OBJECTS)
+yang_mills_tracedef_polyakov_LDADD = $(LDADD)
 am_yang_mills_tube_conn_OBJECTS =  \
 	./src/yang_mills_tube_conn.$(OBJEXT) $(am__objects_15)
 yang_mills_tube_conn_OBJECTS = $(am_yang_mills_tube_conn_OBJECTS)
@@ -324,6 +331,7 @@ SOURCES = $(conf_check_SOURCES) $(debug_rng_SOURCES) \
 	$(yang_mills_polycorradj_SOURCES) \
 	$(yang_mills_polycorradj_long_SOURCES) \
 	$(yang_mills_t0_SOURCES) $(yang_mills_tracedef_SOURCES) \
+	$(yang_mills_tracedef_polyakov_SOURCES) \
 	$(yang_mills_tube_conn_SOURCES) \
 	$(yang_mills_tube_conn_long_SOURCES) \
 	$(yang_mills_tube_disc_SOURCES) \
@@ -344,6 +352,7 @@ DIST_SOURCES = $(conf_check_SOURCES) $(debug_rng_SOURCES) \
 	$(yang_mills_polycorradj_SOURCES) \
 	$(yang_mills_polycorradj_long_SOURCES) \
 	$(yang_mills_t0_SOURCES) $(yang_mills_tracedef_SOURCES) \
+	$(yang_mills_tracedef_polyakov_SOURCES) \
 	$(yang_mills_tube_conn_SOURCES) \
 	$(yang_mills_tube_conn_long_SOURCES) \
 	$(yang_mills_tube_disc_SOURCES) \
@@ -713,6 +722,9 @@ yang_mills_t0_SOURCES = ./src/yang_mills_t0.c \
 yang_mills_tracedef_SOURCES = ./src/yang_mills_tracedef.c \
                             $(everything)
 
+yang_mills_tracedef_polyakov_SOURCES = ./src_yang_mills_tracedef_polyakov.c \
+							$(everything)
+
 yang_mills_tube_conn_SOURCES = ./src/yang_mills_tube_conn.c \
                              $(everything)
 
@@ -1025,6 +1037,18 @@ yang_mills_t0$(EXEEXT): $(yang_mills_t0_OBJECTS) $(yang_mills_t0_DEPENDENCIES) $
 yang_mills_tracedef$(EXEEXT): $(yang_mills_tracedef_OBJECTS) $(yang_mills_tracedef_DEPENDENCIES) $(EXTRA_yang_mills_tracedef_DEPENDENCIES) 
 	@rm -f yang_mills_tracedef$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(yang_mills_tracedef_OBJECTS) $(yang_mills_tracedef_LDADD) $(LIBS)
+./$(am__dirstamp):
+	@$(MKDIR_P) .
+	@: > ./$(am__dirstamp)
+$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ./$(DEPDIR)
+	@: > $(DEPDIR)/$(am__dirstamp)
+./src_yang_mills_tracedef_polyakov.$(OBJEXT): ./$(am__dirstamp) \
+	$(DEPDIR)/$(am__dirstamp)
+
+yang_mills_tracedef_polyakov$(EXEEXT): $(yang_mills_tracedef_polyakov_OBJECTS) $(yang_mills_tracedef_polyakov_DEPENDENCIES) $(EXTRA_yang_mills_tracedef_polyakov_DEPENDENCIES) 
+	@rm -f yang_mills_tracedef_polyakov$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(yang_mills_tracedef_polyakov_OBJECTS) $(yang_mills_tracedef_polyakov_LDADD) $(LIBS)
 ./src/yang_mills_tube_conn.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
@@ -1064,6 +1088,7 @@ yang_mills_tubeadj_disc_long$(EXEEXT): $(yang_mills_tubeadj_disc_long_OBJECTS) $
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f ./*.$(OBJEXT)
 	-rm -f ./lib/*.$(OBJEXT)
 	-rm -f ./src/*.$(OBJEXT)
 	-rm -f ./tests/*.$(OBJEXT)
@@ -1071,6 +1096,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/src_yang_mills_tracedef_polyakov.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./lib/$(DEPDIR)/aligncheck.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./lib/$(DEPDIR)/dSFMT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./lib/$(DEPDIR)/endianness.Po@am__quote@
@@ -1398,12 +1424,14 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f ./$(am__dirstamp)
 	-rm -f lib/$(DEPDIR)/$(am__dirstamp)
 	-rm -f lib/$(am__dirstamp)
 	-rm -f src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/$(am__dirstamp)
 	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
 	-rm -f tests/$(am__dirstamp)
+	-test -z "$(DEPDIR)/$(am__dirstamp)" || rm -f $(DEPDIR)/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1414,7 +1442,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./lib/$(DEPDIR) ./src/$(DEPDIR) ./tests/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) ./lib/$(DEPDIR) ./src/$(DEPDIR) ./tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -1462,7 +1490,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./lib/$(DEPDIR) ./src/$(DEPDIR) ./tests/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) ./lib/$(DEPDIR) ./src/$(DEPDIR) ./tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
