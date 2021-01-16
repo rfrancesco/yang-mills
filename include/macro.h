@@ -46,7 +46,7 @@ static const double PI=3.1415926535897932384626433832795028841971693993751058209
 static const double PI2=6.283185307179586476925286766559005768394338798750211641949889;
 static const double HALF_PI=1.570796326794896619231321691639751442098584699687552910487472;
 
-#define STD_STRING_LENGTH 50 // standarg lenght of unknown strings
+#define STD_STRING_LENGTH 255 // standarg lenght of unknown strings
 
 // way to print a macro: if
 // #define val1 val2
