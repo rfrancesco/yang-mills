@@ -836,7 +836,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
      // compute old action
      times(&tmp_matrix, &(GC->lattice[r][i]), &stap_w);
      action_old=param->d_beta*(1.0-retr(&tmp_matrix));
-     if(i<param->d_tracedef_dim) // just if we are updating a compactified link
+     if(i<param->d_tracedef_dim) // only if we are updating a compactified link
        {
        // "staple" for trace deformation
        calcstaples_tracedef(GC, geo, param, r, i, &stap_td);
@@ -849,7 +849,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
           times_equal(&tmp_matrix, &poly);
           rpart=NCOLOR*retr(&tmp_matrix);
           ipart=NCOLOR*imtr(&tmp_matrix);
-          action_old += param->d_h[j]*(rpart*rpart+ipart*ipart);
+          action_old += param->d_h[i][j]*(rpart*rpart+ipart*ipart);
           }
 
        // Implementation just for d_tracedef_dim == 2 and N_c == 3!
@@ -872,15 +872,17 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
          rpart=NCOLOR*retr(&tmp_matrix);
          ipart=NCOLOR*imtr(&tmp_matrix);
 
+         action_old += param->d_hmixed[0]*(rpart*rpart + ipart*ipart);
+
          // |Tr(P1P2^\dag)|^2
          one(&tmp_matrix);
          times_equal(&tmp_matrix, &poly);
          times_equal_dag(&tmp_matrix, &poly_mixed_term);
 
-         rpart+=NCOLOR*retr(&tmp_matrix);
-         ipart+=NCOLOR*imtr(&tmp_matrix);
+         rpart=NCOLOR*retr(&tmp_matrix);
+         ipart=NCOLOR*imtr(&tmp_matrix);
 
-         action_old += param->d_h[0]*(rpart*rpart + ipart*ipart);
+         action_old += param->d_hmixed[1]*(rpart*rpart + ipart*ipart);
 
          }
        }
@@ -913,7 +915,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
           times_equal(&tmp_matrix, &poly);
           rpart=NCOLOR*retr(&tmp_matrix);
           ipart=NCOLOR*imtr(&tmp_matrix);
-          action_new += param->d_h[j]*(rpart*rpart+ipart*ipart);
+          action_new += param->d_h[i][j]*(rpart*rpart+ipart*ipart);
           }
        // Implementation just for d_tracedef_dim == 2 and N_c == 3!
        // This is a hack. If the results are promising, this must
@@ -935,15 +937,16 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
          rpart=NCOLOR*retr(&tmp_matrix);
          ipart=NCOLOR*imtr(&tmp_matrix);
 
+         action_new += param->d_hmixed[0]*(rpart*rpart + ipart*ipart);
          // |Tr(P1P2^\dag)|^2
          one(&tmp_matrix);
          times_equal(&tmp_matrix, &poly);
          times_equal_dag(&tmp_matrix, &poly_mixed_term);
 
-         rpart+=NCOLOR*retr(&tmp_matrix);
-         ipart+=NCOLOR*imtr(&tmp_matrix);
+         rpart=NCOLOR*retr(&tmp_matrix);
+         ipart=NCOLOR*imtr(&tmp_matrix);
 
-         action_new += param->d_h[0]*(rpart*rpart + ipart*ipart);
+         action_new += param->d_hmixed[1]*(rpart*rpart + ipart*ipart);
 
          }
 

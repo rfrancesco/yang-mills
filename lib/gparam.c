@@ -73,10 +73,17 @@ void readinput(char *in_file, GParam *param)
        }
 
     // just to avoid possible mistakes with uninitialized stuff
-    for(i=0; i<NCOLOR; i++)
-       {
-       param->d_h[i]=0.0;
-       }
+    for(int dim=0; dim<2; dim++)
+      {
+      for(i=0; i<NCOLOR; i++)
+        {
+        param->d_h[dim][i]=0.0;
+        }
+      }
+    for(int dim=0; dim<2; dim++)
+      {
+      param->d_hmixed[dim]=0.0;
+      }
     param->d_tracedef_dim=0;
     param->d_theta=0.0;
     param->d_mon_meas=0; // if =1 monopole measures are performed
@@ -127,7 +134,7 @@ void readinput(char *in_file, GParam *param)
                   param->d_beta=temp_d;
                   }
            // BEGIN: Trace-deformed theory parameters
-           else if(strncmp(str, "htracedef", 9)==0)
+           else if(strncmp(str, "htracedef_d", 11)==0)
                   {
                   int halfncolor;
                   if(NCOLOR==1)
@@ -138,8 +145,26 @@ void readinput(char *in_file, GParam *param)
                     {
                     halfncolor=(int)floor(NCOLOR/2.0);
                     }
-
-                  for(i=0; i<halfncolor; i++)
+                  for(int dim=0; dim<2; dim++)
+                    {
+                    for(i=0; i<halfncolor; i++)
+                      {
+                      err=fscanf(input, "%lf", &temp_d);
+                      if(err!=1)
+                        {
+                        fprintf(stderr, "Error in reading the file %s (%s, %d)\n", in_file, __FILE__, __LINE__);
+                        exit(EXIT_FAILURE);
+                        }
+                      param->d_h[dim][i]=temp_d;
+                      }
+                    }
+                  }
+            else if(strncmp(str, "htracedef_mixed", 15)==0)
+                   {
+                   // Format: htracedef_mixed P1P2 P1P2dag
+                   // TODO: this only makes sense for SU(3), tracedef_dim <= 2
+                   // A more general way to store the coefficient matrix should be implemented.
+                   for(int dim=0; dim<2; dim++)
                      {
                      err=fscanf(input, "%lf", &temp_d);
                      if(err!=1)
@@ -147,9 +172,9 @@ void readinput(char *in_file, GParam *param)
                        fprintf(stderr, "Error in reading the file %s (%s, %d)\n", in_file, __FILE__, __LINE__);
                        exit(EXIT_FAILURE);
                        }
-                     param->d_h[i]=temp_d;
+                     param->d_hmixed[dim]=temp_d;
                      }
-                  }
+                   }
             else if(strncmp(str, "tracedef_dim", 4)==0)
                   {
                   err=fscanf(input, "%d", &temp_i);
@@ -1249,11 +1274,16 @@ void print_parameters_tracedef(GParam const * const param, time_t time_start, ti
     #ifdef THETA_MODE
       fprintf(fp, "theta: %.10lf\n", param->d_theta);
     #endif
-    fprintf(fp, "h: %.10lf ", param->d_h[0]);
-    for(i=1; i<(int) floor(NCOLOR/2.0); i++)
-       {
-       fprintf(fp, "%.10lf ", param->d_h[i]);
-       }
+    fprintf(fp, "h: ");
+    for(int dim=0; dim<2; dim++)
+      {
+      for(i=0; i<(int) floor(NCOLOR/2.0); i++)
+        {
+        fprintf(fp, "%.10lf ", param->d_h[dim][i]);
+        }
+      }
+    fprintf(fp, "\n");
+    fprintf(fp, "hmixed: %.10lf %.10lf\n", param->d_hmixed[0], param->d_hmixed[1]);
     fprintf(fp, "\n\n");
 
     fprintf(fp, "sample:    %d\n", param->d_sample);

@@ -12,7 +12,8 @@ typedef struct GParam {
 
   // simulation parameters
   double d_beta;
-  double d_h[NCOLOR]; // parameters for the trace deformation
+  double d_h[2][NCOLOR]; // parameters for the trace deformation
+  double d_hmixed[2];    // parameters for mixed terms TODO: only supports Su(3) with tracedefdim <= 2
   int d_tracedef_dim; // number of compactified dimensions in trace-deformed theory
   double d_theta;
   double d_adjbeta;

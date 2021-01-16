@@ -146,8 +146,9 @@ void print_template_input(void)
     fprintf(fp, "size 4 4 4 4\n");
     fprintf(fp,"\n");
     fprintf(fp, "beta 5.705\n");
-    fprintf(fp, "htracedef  1.1\n");
-    fprintf(fp, "tracedef_dim 1\n");
+    fprintf(fp, "htracedef_d  1.1 1.1\n");
+    fprintf(fp, "htracedef_mixed 0.5 0.5\n");
+    fprintf(fp, "tracedef_dim 2\n");
     fprintf(fp, "theta 1.5\n");
     fprintf(fp,"\n");
     fprintf(fp, "sample    10\n");
