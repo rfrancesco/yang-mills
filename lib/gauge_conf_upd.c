@@ -814,6 +814,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
   #endif
 
   GAUGE_GROUP stap_w, stap_td, new_link, tmp_matrix, rnd_matrix, poly;
+  GAUGE_GROUP poly_mixed_term; // Polyakov loop, from r->r, along the other compactified dim // TODO: only works for 2 compact. dim, 3 colors!
   double action_new, action_old;
   double rpart, ipart;
   int j, acc, hits;
@@ -859,7 +860,6 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
        if(param->d_tracedef_dim == 2)
          {
          int mixed_term_dir = 1 - i; // The other compactified direction
-         GAUGE_GROUP poly_mixed_term; // Polyakov loop, from r->r, along the other compactified dim
 
          calcstaples_tracedef(GC, geo, param, r, mixed_term_dir, &poly_mixed_term);
          times(&poly_mixed_term, &(GC->lattice[r][mixed_term_dir]), &poly_mixed_term);
@@ -923,11 +923,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
 
        if(param->d_tracedef_dim == 2)
          {
-         int mixed_term_dir = 1 - i; // The other compactified direction
-         GAUGE_GROUP poly_mixed_term; // Polyakov loop, from r->r, along the other compactified dim
-
-         calcstaples_tracedef(GC, geo, param, r, mixed_term_dir, &poly_mixed_term);
-         times(&poly_mixed_term, &(GC->lattice[r][mixed_term_dir]), &poly_mixed_term);
+         // int mixed_term_dir = 1 - i; // The other compactified direction
 
          // |Tr(P1P2)|^2
          one(&tmp_matrix);
