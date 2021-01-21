@@ -809,13 +809,13 @@ void polyakov_for_tracedef_cross(Gauge_Conf const * const GC,
      times_equal(&matrix, &P1);
      times_equal(&matrix, &P2);
      re_p1p2[r] = retr(&matrix);
-     im_p1p2[r] = retr(&matrix);
+     im_p1p2[r] = imtr(&matrix);
 
      one(&matrix);
      times_equal(&matrix, &P1);
      times_equal_dag(&matrix, &P2);
      re_p1p2dag[r] = retr(&matrix);
-     im_p1p2dag[r] = retr(&matrix);
+     im_p1p2dag[r] = imtr(&matrix);
 
      }
 
