@@ -843,7 +843,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
        calcstaples_tracedef(GC, geo, param, r, i, &stap_td);
 
        // trace deformation contribution to action_old
-       times(&poly, &(GC->lattice[r][i]), &stap_td);
+       times(&poly, &(GC->lattice[r][i]), &stap_td); // poly = Polyakov loop from r along i
        one(&tmp_matrix);
        for(j=0; j<(int)floor(NCOLOR/2.0); j++)
           {
@@ -908,7 +908,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
      if(i<param->d_tracedef_dim) // just if we are updating a temporal link
        {
        // trace deformation contribution to action_new
-       times(&poly, &new_link, &stap_td);
+       times(&poly, &new_link, &stap_td); // Proposed new Polyakov loop along i
        one(&tmp_matrix);
        for(j=0; j<(int)floor(NCOLOR/2.0); j++)
           {
