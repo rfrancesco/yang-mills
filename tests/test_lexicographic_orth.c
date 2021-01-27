@@ -67,6 +67,7 @@ void real_main(char *in_file)
     printf("Testing consistency of the (rsp, t, axis) <-> r <-> (x_1...x_n, t) mapping. \n");
     printf("This should loop over every combination of (axis, rsp, t). This should be checked visually. \n");
     printf("VALID/ERROR: consistency check, by transforming coordinates both ways. ERROR should never be displayed, by design. \n");
+    printf("OK_SISP: consistency check for axis=0, by checking that rsp is indeed the sisp used in the original code. \n");
 
     for(int axis=0; axis<STDIM; axis++)
       {
@@ -88,15 +89,31 @@ void real_main(char *in_file)
           long rsp_test;
           int t_test;
           si_to_siorth_and_par(&rsp_test, &t_test, axis, r, &geo);
-          if (rsp == rsp_test || t == t_test)
+          if (rsp == rsp_test && t == t_test)
             {
-            printf("VALID\n");
+            printf("VALID ");
             }
           else
             {
             printf("ERROR\n");
             exit(EXIT_FAILURE);
             }
+	  if (axis == 0)
+	    {
+            long rsp_test_bonati;
+	    int t_test_bonati;
+	    si_to_sisp_and_t(&rsp_test_bonati, &t_test_bonati, &geo, r);
+	    if (rsp == rsp_test_bonati && t == t_test_bonati)
+               {
+	       printf("OK_SISP");
+	       }
+	    else
+	       {
+	       printf("ERROR_SISP\n");
+	       exit(EXIT_FAILURE);
+	       }
+            }
+	  printf("\n");
           }
         }
       printf("COMPLETED test for axis=%d\n", axis);

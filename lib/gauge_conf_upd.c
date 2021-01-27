@@ -1159,14 +1159,14 @@ void update_with_trace_def(Gauge_Conf * GC,
 
    const int maxhits=5;
 
-   err=posix_memalign((void**)&a, (size_t)INT_ALIGN, (size_t) param->d_space_vol * sizeof(int));
+   err=posix_memalign((void**)&a, (size_t)INT_ALIGN, (size_t) param->d_volume * sizeof(int));
    if(err!=0)
      {
      fprintf(stderr, "Problems in allocating a vector! (%s, %d)\n", __FILE__, __LINE__);
      exit(EXIT_FAILURE);
      }
 
-   for(r=0; r<param->d_space_vol; r++)
+   for(r=0; r<param->d_volume; r++)
       {
       a[r]=0;
       }
@@ -1198,7 +1198,7 @@ void update_with_trace_def(Gauge_Conf * GC,
    // metropolis on compactified links
    for(dir=0; dir<param->d_tracedef_dim; dir++)
       {
-      for(t=0; t<param->d_size[0]; t++)
+      for(t=0; t<param->d_size[dir]; t++)
          {
          #ifdef THETA_MODE
          compute_clovers(GC, geo, param, dir);
@@ -1207,19 +1207,19 @@ void update_with_trace_def(Gauge_Conf * GC,
          #ifdef OPENMP_MODE
          #pragma omp parallel for num_threads(NTHREADS) private(r)
          #endif
-         for(r=0; r<(param->d_space_vol)/2; r++)
+         for(long rsp=0; rsp<(param->d_orth_vol[dir])/2; rsp++)
             {
-            long r4=sisp_and_t_to_si(geo, r, t);
-            a[r]+=metropolis_with_tracedef(GC, geo, param, r4, dir, maxhits);
+            long r4=siorth_and_par_to_si(geo, rsp, t, dir);
+            a[rsp]+=metropolis_with_tracedef(GC, geo, param, r4, dir, maxhits);
             }
 
          #ifdef OPENMP_MODE
          #pragma omp parallel for num_threads(NTHREADS) private(r)
          #endif
-         for(r=(param->d_space_vol)/2; r<(param->d_space_vol); r++)
+         for(long rsp=(param->d_orth_vol[dir])/2; rsp<(param->d_orth_vol[dir]); rsp++)
             {
-            long r4=sisp_and_t_to_si(geo, r, t);
-            a[r]+=metropolis_with_tracedef(GC, geo, param, r4, dir, maxhits);
+            long r4=siorth_and_par_to_si(geo, rsp, t, dir);
+            a[rsp]+=metropolis_with_tracedef(GC, geo, param, r4, dir, maxhits);
             }
          }
       }
@@ -1227,12 +1227,18 @@ void update_with_trace_def(Gauge_Conf * GC,
    #ifdef OPENMP_MODE
    #pragma omp parallel for reduction(+:asum) private(r)
    #endif
-   for(r=0; r<param->d_space_vol; r++)
+   for(r=0; r<param->d_volume; r++)
       {
       asum+=(long)a[r];
       }
 
-   *acc=((double)asum)*param->d_inv_vol/(double)(maxhits*param->d_tracedef_dim);
+   long metropolis_vol = 0;
+   for(dir = 0; dir<param->d_tracedef_dim; dir++)
+     {
+     metropolis_vol+=param->d_orth_vol[dir];
+     }
+   double inv_metropolis_vol = 1 / ((double) metropolis_vol);
+   *acc=((double)asum)*inv_metropolis_vol/(double)(maxhits*param->d_tracedef_dim);
 
    // overrelax non-compactified links
    for(dir=param->d_tracedef_dim; dir<STDIM; dir++)
