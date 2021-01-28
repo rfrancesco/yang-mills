@@ -105,7 +105,7 @@ void real_main(char *in_file)
 	    si_to_sisp_and_t(&rsp_test_bonati, &t_test_bonati, &geo, r);
 	    if (rsp == rsp_test_bonati && t == t_test_bonati)
                {
-	       printf("OK_SISP");
+	       printf("OK_SISP: (sisp, t) == (%ld, %d) ", rsp_test_bonati, t_test_bonati);
 	       }
 	    else
 	       {
