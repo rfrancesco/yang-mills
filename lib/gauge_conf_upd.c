@@ -1196,6 +1196,8 @@ void update_with_trace_def(Gauge_Conf * GC,
       }
 
    // metropolis on compactified links
+   // For each orthogonal slice, updates can be done in parallel on non-neighboring links
+   // This ensures that parallel updates do not interfere with each other.
    for(dir=0; dir<param->d_tracedef_dim; dir++)
       {
       for(t=0; t<param->d_size[dir]; t++)
@@ -1232,13 +1234,7 @@ void update_with_trace_def(Gauge_Conf * GC,
       asum+=(long)a[r];
       }
 
-   long metropolis_vol = 0;
-   for(dir = 0; dir<param->d_tracedef_dim; dir++)
-     {
-     metropolis_vol+=param->d_orth_vol[dir];
-     }
-   double inv_metropolis_vol = 1 / ((double) metropolis_vol);
-   *acc=((double)asum)*inv_metropolis_vol/(double)(maxhits*param->d_tracedef_dim);
+   *acc=((double)asum*param->d_inv_vol)/(double)(maxhits*param->d_tracedef_dim);
 
    // overrelax non-compactified links
    for(dir=param->d_tracedef_dim; dir<STDIM; dir++)
