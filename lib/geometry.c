@@ -733,7 +733,7 @@ void si_to_siorth_and_par_compute(long *siorth, int *par, int axis, long si, GPa
   {
   // Lexicographic even/odd ordering of the lattice sites in the space ortogonal to the chosen axis
   // This work is preliminar, and should be refactored into lexeo_to_whatever() functions
-  // so it can be extended to lexeo ordering once I know enough about which choice makes more sense
+  // Lexeo ordering is preferable, because updates can be easily parallelized on a time-slice
   int cartcoord[STDIM];
 
   si_to_cart(cartcoord, si, param);
