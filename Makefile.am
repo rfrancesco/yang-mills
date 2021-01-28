@@ -25,7 +25,7 @@ bin_PROGRAMS = conf_check \
                yang_mills_tube_disc_long \
                yang_mills_tubeadj_disc \
                yang_mills_tubeadj_disc_long \
-	       	   test_lexicographic_orth 
+	       	   test_lexeo_orth 
 
 align = ./include/aligncheck.h \
         ./lib/aligncheck.c
@@ -270,7 +270,7 @@ yang_mills_tubeadj_disc_SOURCES=./src/yang_mills_tubeadj_disc.c \
 yang_mills_tubeadj_disc_long_SOURCES=./src/yang_mills_tubeadj_disc_long.c \
                                      $(everything)
 
-test_lexicographic_orth_SOURCES=./tests/test_lexicographic_orth.c \
+test_lexeo_orth_SOURCES=./tests/test_lexeo_orth.c \
 				$(everything)
    
 AM_CFLAGS = -std=c99 -O2 -Wall -Wextra -Werror -pedantic -Wconversion @OPENMP_CFLAGS@

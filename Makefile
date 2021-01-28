@@ -103,8 +103,7 @@ bin_PROGRAMS = conf_check$(EXEEXT) debug_rng$(EXEEXT) \
 	yang_mills_tube_disc$(EXEEXT) \
 	yang_mills_tube_disc_long$(EXEEXT) \
 	yang_mills_tubeadj_disc$(EXEEXT) \
-	yang_mills_tubeadj_disc_long$(EXEEXT) \
-	test_lexicographic_orth$(EXEEXT)
+	yang_mills_tubeadj_disc_long$(EXEEXT) test_lexeo_orth$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -201,11 +200,10 @@ am__objects_15 = $(am__objects_1) $(am__objects_2) $(am__objects_3) \
 	$(am__objects_14) $(am__objects_6) $(am__objects_8) \
 	$(am__objects_7) $(am__objects_9) $(am__objects_10) \
 	$(am__objects_11) $(am__objects_12)
-am_test_lexicographic_orth_OBJECTS =  \
-	./tests/test_lexicographic_orth.$(OBJEXT) $(am__objects_15)
-test_lexicographic_orth_OBJECTS =  \
-	$(am_test_lexicographic_orth_OBJECTS)
-test_lexicographic_orth_LDADD = $(LDADD)
+am_test_lexeo_orth_OBJECTS = ./tests/test_lexeo_orth.$(OBJEXT) \
+	$(am__objects_15)
+test_lexeo_orth_OBJECTS = $(am_test_lexeo_orth_OBJECTS)
+test_lexeo_orth_LDADD = $(LDADD)
 am_yang_mills_higgs_OBJECTS = ./src/yang_mills_higgs.$(OBJEXT) \
 	$(am__objects_15)
 yang_mills_higgs_OBJECTS = $(am_yang_mills_higgs_OBJECTS)
@@ -257,7 +255,7 @@ am_yang_mills_tracedef_OBJECTS = ./src/yang_mills_tracedef.$(OBJEXT) \
 yang_mills_tracedef_OBJECTS = $(am_yang_mills_tracedef_OBJECTS)
 yang_mills_tracedef_LDADD = $(LDADD)
 am_yang_mills_tracedef_polyakov_OBJECTS =  \
-	./src_yang_mills_tracedef_polyakov.$(OBJEXT) $(am__objects_15)
+	./src/yang_mills_tracedef_polyakov.$(OBJEXT) $(am__objects_15)
 yang_mills_tracedef_polyakov_OBJECTS =  \
 	$(am_yang_mills_tracedef_polyakov_OBJECTS)
 yang_mills_tracedef_polyakov_LDADD = $(LDADD)
@@ -321,7 +319,7 @@ SOURCES = $(conf_check_SOURCES) $(debug_rng_SOURCES) \
 	$(debug_son_SOURCES) $(debug_su2_SOURCES) \
 	$(debug_su2_adj_SOURCES) $(debug_su2sun_SOURCES) \
 	$(debug_sun_SOURCES) $(debug_u1_SOURCES) $(debug_vecs_SOURCES) \
-	$(test_lexicographic_orth_SOURCES) $(yang_mills_higgs_SOURCES) \
+	$(test_lexeo_orth_SOURCES) $(yang_mills_higgs_SOURCES) \
 	$(yang_mills_local_SOURCES) \
 	$(yang_mills_local_fundadj_SOURCES) \
 	$(yang_mills_polycorr_SOURCES) \
@@ -342,7 +340,7 @@ DIST_SOURCES = $(conf_check_SOURCES) $(debug_rng_SOURCES) \
 	$(debug_son_SOURCES) $(debug_su2_SOURCES) \
 	$(debug_su2_adj_SOURCES) $(debug_su2sun_SOURCES) \
 	$(debug_sun_SOURCES) $(debug_u1_SOURCES) $(debug_vecs_SOURCES) \
-	$(test_lexicographic_orth_SOURCES) $(yang_mills_higgs_SOURCES) \
+	$(test_lexeo_orth_SOURCES) $(yang_mills_higgs_SOURCES) \
 	$(yang_mills_local_SOURCES) \
 	$(yang_mills_local_fundadj_SOURCES) \
 	$(yang_mills_polycorr_SOURCES) \
@@ -722,7 +720,7 @@ yang_mills_t0_SOURCES = ./src/yang_mills_t0.c \
 yang_mills_tracedef_SOURCES = ./src/yang_mills_tracedef.c \
                             $(everything)
 
-yang_mills_tracedef_polyakov_SOURCES = ./src_yang_mills_tracedef_polyakov.c \
+yang_mills_tracedef_polyakov_SOURCES = ./src/yang_mills_tracedef_polyakov.c \
 							$(everything)
 
 yang_mills_tube_conn_SOURCES = ./src/yang_mills_tube_conn.c \
@@ -743,7 +741,7 @@ yang_mills_tubeadj_disc_SOURCES = ./src/yang_mills_tubeadj_disc.c \
 yang_mills_tubeadj_disc_long_SOURCES = ./src/yang_mills_tubeadj_disc_long.c \
                                      $(everything)
 
-test_lexicographic_orth_SOURCES = ./tests/test_lexicographic_orth.c \
+test_lexeo_orth_SOURCES = ./tests/test_lexeo_orth.c \
 				$(everything)
 
 AM_CFLAGS = -std=c99 -O2 -Wall -Wextra -Werror -pedantic -Wconversion 
@@ -953,7 +951,7 @@ tests/$(am__dirstamp):
 tests/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ./tests/$(DEPDIR)
 	@: > tests/$(DEPDIR)/$(am__dirstamp)
-./tests/test_lexicographic_orth.$(OBJEXT): tests/$(am__dirstamp) \
+./tests/test_lexeo_orth.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 ./lib/gauge_conf_def.$(OBJEXT): lib/$(am__dirstamp) \
 	lib/$(DEPDIR)/$(am__dirstamp)
@@ -968,9 +966,9 @@ tests/$(DEPDIR)/$(am__dirstamp):
 ./lib/geometry.$(OBJEXT): lib/$(am__dirstamp) \
 	lib/$(DEPDIR)/$(am__dirstamp)
 
-test_lexicographic_orth$(EXEEXT): $(test_lexicographic_orth_OBJECTS) $(test_lexicographic_orth_DEPENDENCIES) $(EXTRA_test_lexicographic_orth_DEPENDENCIES) 
-	@rm -f test_lexicographic_orth$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(test_lexicographic_orth_OBJECTS) $(test_lexicographic_orth_LDADD) $(LIBS)
+test_lexeo_orth$(EXEEXT): $(test_lexeo_orth_OBJECTS) $(test_lexeo_orth_DEPENDENCIES) $(EXTRA_test_lexeo_orth_DEPENDENCIES) 
+	@rm -f test_lexeo_orth$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_lexeo_orth_OBJECTS) $(test_lexeo_orth_LDADD) $(LIBS)
 ./src/yang_mills_higgs.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
@@ -1037,14 +1035,8 @@ yang_mills_t0$(EXEEXT): $(yang_mills_t0_OBJECTS) $(yang_mills_t0_DEPENDENCIES) $
 yang_mills_tracedef$(EXEEXT): $(yang_mills_tracedef_OBJECTS) $(yang_mills_tracedef_DEPENDENCIES) $(EXTRA_yang_mills_tracedef_DEPENDENCIES) 
 	@rm -f yang_mills_tracedef$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(yang_mills_tracedef_OBJECTS) $(yang_mills_tracedef_LDADD) $(LIBS)
-./$(am__dirstamp):
-	@$(MKDIR_P) .
-	@: > ./$(am__dirstamp)
-$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ./$(DEPDIR)
-	@: > $(DEPDIR)/$(am__dirstamp)
-./src_yang_mills_tracedef_polyakov.$(OBJEXT): ./$(am__dirstamp) \
-	$(DEPDIR)/$(am__dirstamp)
+./src/yang_mills_tracedef_polyakov.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 
 yang_mills_tracedef_polyakov$(EXEEXT): $(yang_mills_tracedef_polyakov_OBJECTS) $(yang_mills_tracedef_polyakov_DEPENDENCIES) $(EXTRA_yang_mills_tracedef_polyakov_DEPENDENCIES) 
 	@rm -f yang_mills_tracedef_polyakov$(EXEEXT)
@@ -1088,7 +1080,6 @@ yang_mills_tubeadj_disc_long$(EXEEXT): $(yang_mills_tubeadj_disc_long_OBJECTS) $
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ./*.$(OBJEXT)
 	-rm -f ./lib/*.$(OBJEXT)
 	-rm -f ./src/*.$(OBJEXT)
 	-rm -f ./tests/*.$(OBJEXT)
@@ -1096,7 +1087,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/src_yang_mills_tracedef_polyakov.Po
 include ./lib/$(DEPDIR)/aligncheck.Po
 include ./lib/$(DEPDIR)/dSFMT.Po
 include ./lib/$(DEPDIR)/endianness.Po
@@ -1144,13 +1134,14 @@ include ./src/$(DEPDIR)/yang_mills_polycorradj.Po
 include ./src/$(DEPDIR)/yang_mills_polycorradj_long.Po
 include ./src/$(DEPDIR)/yang_mills_t0.Po
 include ./src/$(DEPDIR)/yang_mills_tracedef.Po
+include ./src/$(DEPDIR)/yang_mills_tracedef_polyakov.Po
 include ./src/$(DEPDIR)/yang_mills_tube_conn.Po
 include ./src/$(DEPDIR)/yang_mills_tube_conn_long.Po
 include ./src/$(DEPDIR)/yang_mills_tube_disc.Po
 include ./src/$(DEPDIR)/yang_mills_tube_disc_long.Po
 include ./src/$(DEPDIR)/yang_mills_tubeadj_disc.Po
 include ./src/$(DEPDIR)/yang_mills_tubeadj_disc_long.Po
-include ./tests/$(DEPDIR)/test_lexicographic_orth.Po
+include ./tests/$(DEPDIR)/test_lexeo_orth.Po
 
 .c.o:
 	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -1424,14 +1415,12 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ./$(am__dirstamp)
 	-rm -f lib/$(DEPDIR)/$(am__dirstamp)
 	-rm -f lib/$(am__dirstamp)
 	-rm -f src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/$(am__dirstamp)
 	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
 	-rm -f tests/$(am__dirstamp)
-	-test -z "$(DEPDIR)/$(am__dirstamp)" || rm -f $(DEPDIR)/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1442,7 +1431,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) ./lib/$(DEPDIR) ./src/$(DEPDIR) ./tests/$(DEPDIR)
+	-rm -rf ./lib/$(DEPDIR) ./src/$(DEPDIR) ./tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -1490,7 +1479,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) ./lib/$(DEPDIR) ./src/$(DEPDIR) ./tests/$(DEPDIR)
+	-rm -rf ./lib/$(DEPDIR) ./src/$(DEPDIR) ./tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
