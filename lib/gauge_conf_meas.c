@@ -1107,6 +1107,7 @@ void perform_measures_localobs_with_tracedef(Gauge_Conf const * const GC,
 
    double polyre_2[NCOLOR/2+1], polyim_2[NCOLOR/2+1];           // TODO This is a hack. Rewrite this part to
                                                                 // have polyre/im[param->d_tracedef_dim][NCOLOR/2+1];
+   double re_p1p2, im_p1p2, re_p1p2dag, im_p1p2dag;
 
    plaquette(GC, geo, param, &plaqs, &plaqt);
    polyakov_for_tracedef_along_axis(GC, geo, param, 0, polyre, polyim);
@@ -1123,6 +1124,11 @@ void perform_measures_localobs_with_tracedef(Gauge_Conf const * const GC,
       {
       fprintf(datafilep, "%.12g %.12g ", polyre_2[i], polyim_2[i]);
       }
+   // Print cross terms P0P1, P0P1_\dag
+   polyakov_for_tracedef_cross(GC, geo, param, 0, 1, &re_p1p2, &im_p1p2, &re_p1p2dag, &im_p1p2dag);
+
+   fprintf(datafilep, "%.12g %.12g ", re_p1p2, im_p1p2);
+   fprintf(datafilep, "%.12g %.12g ", re_p1p2dag, im_p1p2dag);
 
    // topological observables
    #if( (STDIM==4 && NCOLOR>1) || (STDIM==2 && NCOLOR==1) )
