@@ -146,7 +146,7 @@ void print_template_input(void)
     fprintf(fp,"\n");
     fprintf(fp, "beta 5.705\n");
     fprintf(fp, "htracedef_d 1.1 1.1\n");
-    fprintf(fp, "hracedef_mixed 0.5 0.5\n");
+    fprintf(fp, "htracedef_mixed 0.5 0.5\n");
     fprintf(fp, "tracedef_dim 2\n");
     fprintf(fp, "theta 1.5\n");
     fprintf(fp,"\n");
