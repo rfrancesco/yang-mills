@@ -731,9 +731,9 @@ void lexeo_to_lexeosp_and_t(long *lexeosp, int *t, long lexeo, GParam const * co
 
 void si_to_siorth_and_par_compute(long *siorth, int *par, int axis, long si, GParam const * const param)
   {
-  // Lexicographic ordering of the lattice sites in the space ortogonal to the chosen axis
+  // Lexicographic even/odd ordering of the lattice sites in the space ortogonal to the chosen axis
   // This work is preliminar, and should be refactored into lexeo_to_whatever() functions
-  // so it can be extended to lexeo ordering once I know enough about which choice makes more sense
+  // Lexeo ordering is preferable, because updates can be easily parallelized on a time-slice
   int cartcoord[STDIM];
 
   si_to_cart(cartcoord, si, param);
@@ -742,6 +742,14 @@ void si_to_siorth_and_par_compute(long *siorth, int *par, int axis, long si, GPa
 
   long siorth_temp=0;
   long aux=1;
+  cartcoord[axis] = 0;
+  long eo = 0;
+
+  for(int i=0; i<STDIM; i++)
+    {
+    eo+=cartcoord[i];
+    }
+
 
   for(int i=0; i<STDIM; i++)
     {
@@ -751,7 +759,17 @@ void si_to_siorth_and_par_compute(long *siorth, int *par, int axis, long si, GPa
       aux*=param->d_size[i];
       }
     }
+
+  if(eo % 2 == 0)
+    {
+    siorth_temp = siorth_temp/2;
+    }
+  else
+    {
+    siorth_temp = (siorth_temp + param->d_orth_vol[axis])/2;
+    }
   *siorth=siorth_temp;
   }
 
 #endif
+
