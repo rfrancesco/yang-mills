@@ -1,0 +1,7 @@
+*.o
+*.dat
+*.in
+*.Po
+*.deps
+*.dirstamp
+
