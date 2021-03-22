@@ -875,6 +875,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
          action_old += param->d_hmixed[0]*(rpart*rpart + ipart*ipart);
 
          // |Tr(P1P2^\dag)|^2
+	 // Note: |Tr P1P2^\dag|^2 = |Tr P2P1^\dag|^2
          one(&tmp_matrix);
          times_equal(&tmp_matrix, &poly);
          times_equal_dag(&tmp_matrix, &poly_mixed_term);
@@ -924,6 +925,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
        if(param->d_tracedef_dim == 2)
          {
          // int mixed_term_dir = 1 - i; // The other compactified direction
+	 // We do not need to compute it again, as the loop along mixed_term_dir does not change during an update
 
          // |Tr(P1P2)|^2
          one(&tmp_matrix);
