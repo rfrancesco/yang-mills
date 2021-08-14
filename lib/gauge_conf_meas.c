@@ -234,6 +234,43 @@ void clover(Gauge_Conf const * const GC,
    plus_equal(M, &aux);
    }
 
+// compute the mean plaquettes (spatial, temporal)
+void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
+               Geometry const * const geo,
+               GParam const * const param,
+               complex *plaquettes)
+   {
+   long r;
+   complex plaq[STDIM*(STDIM-1)/2];
+
+   for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
+      {
+      plaq[i]=0.0;
+      }
+
+   #ifdef OPENMP_MODE
+   #pragma omp parallel for num_threads(NTHREADS) private(r) reduction(+ : pt) reduction(+ : ps)
+   #endif
+   for(r=0; r<(param->d_volume); r++)
+      {
+      int i, j;
+      unsigned int counter = 0;
+      for(i=0; i<STDIM; i++)
+         {
+         for(j=i+1; j<STDIM; j++)
+            {
+            plaq[counter]+=plaquettep_complex(GC, geo, param, r, i, j);
+            counter++;
+            }
+         }
+      }
+
+   for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
+      {
+      plaq[i]*=param->d_inv_vol;
+      plaquettes[i]=plaq[i];
+      }
+   }
 
 // compute the mean plaquettes (spatial, temporal)
 void plaquette(Gauge_Conf const * const GC,
@@ -1247,6 +1284,25 @@ int i;
 
 
    }
+
+void perform_measures_plaquettes_with_tracedef(Gauge_Conf const * const GC,
+                                             Geometry const * const geo,
+                                             GParam const * const param,
+                                             FILE *datafilep)
+   {
+   complex plaquettes[STDIM*(STDIM-1)/2];                                                             // have polyre/im[param->d_tracedef_dim][NCOLOR/2+1];
+
+   compute_all_complex_plaquettes(GC, geo, param, plaquettes);
+
+   // Print all plaquettes (real AND imaginary part)
+   for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
+      {
+      fprintf(datafilep, "%.12g %.12g ", creal(plaquettes[i]), cimag(plaquettes[i]));
+      }
+   fprintf(datafilep, "\n");
+   fflush(datafilep);
+   }
+
 
 void perform_measures_localobs_fundadj(Gauge_Conf const * const GC,
                                        Geometry const * const geo,

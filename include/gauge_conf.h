@@ -203,6 +203,10 @@ void plaquette(Gauge_Conf const * const GC,
                GParam const * const param,
                double *plaqs,
                double *plaqt);
+void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
+               Geometry const * const geo,
+               GParam const * const param,
+               complex *plaquettes);
 void plaquette_fundadj(Gauge_Conf const * const GC,
                        Geometry const * const geo,
                        GParam const * const param,
@@ -268,6 +272,11 @@ void perform_measures_polyakov_with_tracedef(Gauge_Conf const * const GC,
                                              Geometry const * const geo,
                                              GParam const * const param,
                                              FILE *datafilep);
+void perform_measures_plaquettes_with_tracedef(Gauge_Conf const * const GC,
+                                             Geometry const * const geo,
+                                             GParam const * const param,
+                                             FILE *datafilep);
+
 
 void perform_measures_localobs_fundadj(Gauge_Conf const * const GC,
                                        Geometry const * const geo,
