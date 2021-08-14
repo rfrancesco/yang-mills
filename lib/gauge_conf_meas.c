@@ -286,7 +286,7 @@ void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
       }
 
    #ifdef OPENMP_MODE
-   #pragma omp parallel for num_threads(NTHREADS) private(r, index) 
+   #pragma omp parallel for num_threads(NTHREADS) private(r) 
    #endif
    for(r=0; r<(param->d_volume); r++)
       {
