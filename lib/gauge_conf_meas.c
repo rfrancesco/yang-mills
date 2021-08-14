@@ -249,7 +249,7 @@ void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
       }
 
    #ifdef OPENMP_MODE
-   #pragma omp parallel for num_threads(NTHREADS) private(r) reduction(+ : pt) reduction(+ : ps)
+   #pragma omp parallel for num_threads(NTHREADS) private(r) reduction(+ : plaq)
    #endif
    for(r=0; r<(param->d_volume); r++)
       {
