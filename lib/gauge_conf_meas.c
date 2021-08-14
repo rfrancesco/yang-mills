@@ -241,42 +241,89 @@ void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
                complex *plaquettes)
    {
    long r;
+   int err;
    complex plaq[STDIM*(STDIM-1)/2];
-   double plaqre[STDIM(STDIM-1)/2];
-   double plaqim[STDIM(STDIM-1)/2];
+   double *plaqre[STDIM*(STDIM-1)/2];
+   double *plaqim[STDIM*(STDIM-1)/2];
+   double plaqre_sum[STDIM*(STDIM-1)/2];
+   double plaqim_sum[STDIM*(STDIM-1)/2];
+
+
+
+   for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++) 
+      {
+      err=posix_memalign((void**)&plaqre[i], (size_t)INT_ALIGN, (size_t) param->d_volume * sizeof(double));
+      if(err!=0)
+         {
+         fprintf(stderr, "Problems in allocating a vector! (%s, %d)\n", __FILE__, __LINE__);
+         exit(EXIT_FAILURE);
+         }
+      err=posix_memalign((void**)&plaqim[i], (size_t)INT_ALIGN, (size_t) param->d_volume * sizeof(double));
+      if(err!=0)
+         {
+         fprintf(stderr, "Problems in allocating a vector! (%s, %d)\n", __FILE__, __LINE__);
+         exit(EXIT_FAILURE);
+         }
+      }
 
    for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
       {
+      #ifdef OPENMP_MODE
+      #pragma omp parallel for num_threads(NTHREADS) private(r)
+      #endif
+      for(r=0; r<(param->d_volume); r++)
+         {
+         plaqre[i][r]=0.0;
+         plaqim[i][r]=0.0;
+         }
+      }
+
+   for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
+      {
+      plaqre_sum[i]=0.0;
+      plaqim_sum[i]=0.0;
       plaq[i]=0.0;
-      plaqre[i]=0.0;
-      plaqim[i]=0.0;
       }
 
    #ifdef OPENMP_MODE
-   #pragma omp parallel for num_threads(NTHREADS) private(r) reduction(+ : plaqre) reduction(+ : plaqim)
+   #pragma omp parallel for num_threads(NTHREADS) private(r, index) 
    #endif
    for(r=0; r<(param->d_volume); r++)
       {
-      int i, j;
-      unsigned int counter = 0;
+      int i, j, index;
       complex plaq_temp;
       for(i=0; i<STDIM; i++)
          {
          for(j=i+1; j<STDIM; j++)
             {
-            
+            // index is an index over (0,1), (0,2) ... (0, STDIM-1), (1,2), (1,3) ... (1, STDIM-1), ...
+            // i.e. all ordered (i,j) pairs such that i < j.
+            // the proof of the following statement is straightforward (lexicographical index - \sum_{n = 1}^{i+1} n missing pairs)
+            index = STDIM*i + j - (i+1)*(i+2)/2;
             plaq_temp=plaquettep_complex(GC, geo, param, r, i, j);
             // some compilers cannot perform reductions on complex variables
-            plaqre[counter]+=creal(plaq_temp);
-            plaqim[counter]+=cimag(plaq_temp);
-            counter++;
+            plaqre[index][r]+=creal(plaq_temp);
+            plaqim[index][r]+=cimag(plaq_temp);
             }
          }
       }
 
    for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
       {
-      plaq[i]=plaqre[i]+I*plaqim[i];
+      #ifdef OPENMP_MODE
+      #pragma omp parallel for num_threads(NTHREADS) private(r) reduction(+ : plaqre_sum) reduction(+: plaqim_sum)
+      #endif
+      for(r=0; r<(param->d_volume); r++)
+         {
+         plaqre_sum[i]+=plaqre[i][r];
+         plaqim_sum[i]+=plaqim[i][r];
+         }
+      } 
+   
+
+   for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
+      {
+      plaq[i]=plaqre_sum[i]+I*plaqim_sum[i];
       plaq[i]*=param->d_inv_vol;
       plaquettes[i]=plaq[i];
       }
