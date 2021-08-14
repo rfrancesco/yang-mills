@@ -310,14 +310,19 @@ void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
 
    for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
       {
+      double plaqre_sum_temp, plaqim_sum_temp;
+      plaqre_sum_temp = 0.0;
+      plaqim_sum_temp = 0.0;
       #ifdef OPENMP_MODE
-      #pragma omp parallel for num_threads(NTHREADS) private(r) reduction(+ : plaqre_sum[i]) reduction(+: plaqim_sum[i])
+      #pragma omp parallel for num_threads(NTHREADS) private(r) reduction(+ : plaqre_sum_temp) reduction(+: plaqim_sum_temp)
       #endif
       for(r=0; r<(param->d_volume); r++)
          {
-         plaqre_sum[i]+=plaqre[i][r];
-         plaqim_sum[i]+=plaqim[i][r];
+         plaqre_sum_temp+=plaqre[i][r];
+         plaqim_sum_temp+=plaqim[i][r];
          }
+      plaqre_sum[i]=plaqre_sum_temp;
+      plaqim_sum[i]=plaqim_sum_temp;
       } 
    
 
