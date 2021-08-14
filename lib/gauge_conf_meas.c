@@ -242,24 +242,33 @@ void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
    {
    long r;
    complex plaq[STDIM*(STDIM-1)/2];
+   double plaqre[STDIM(STDIM-1)/2];
+   double plaqim[STDIM(STDIM-1)/2];
 
    for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
       {
       plaq[i]=0.0;
+      plaqre[i]=0.0;
+      plaqim[i]=0.0;
       }
 
    #ifdef OPENMP_MODE
-   #pragma omp parallel for num_threads(NTHREADS) private(r) reduction(+ : plaq)
+   #pragma omp parallel for num_threads(NTHREADS) private(r) reduction(+ : plaqre) reduction(+ : plaqim)
    #endif
    for(r=0; r<(param->d_volume); r++)
       {
       int i, j;
       unsigned int counter = 0;
+      complex plaq_temp;
       for(i=0; i<STDIM; i++)
          {
          for(j=i+1; j<STDIM; j++)
             {
-            plaq[counter]+=plaquettep_complex(GC, geo, param, r, i, j);
+            
+            plaq_temp=plaquettep_complex(GC, geo, param, r, i, j);
+            // some compilers cannot perform reductions on complex variables
+            plaqre[counter]+=creal(plaq_temp);
+            plaqim[counter]+=cimag(plaq_temp);
             counter++;
             }
          }
@@ -267,6 +276,7 @@ void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
 
    for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++)
       {
+      plaq[i]=plaqre[i]+I*plaqim[i];
       plaq[i]*=param->d_inv_vol;
       plaquettes[i]=plaq[i];
       }
