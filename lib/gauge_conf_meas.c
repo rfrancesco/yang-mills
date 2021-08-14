@@ -298,10 +298,10 @@ void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
             {
             // index is an index over (0,1), (0,2) ... (0, STDIM-1), (1,2), (1,3) ... (1, STDIM-1), ...
             // i.e. all ordered (i,j) pairs such that i < j.
-            // the proof of the following statement is straightforward (lexicographical index - \sum_{n = 1}^{i+1} n missing pairs)
+            // the proof of the following statement is straightforward:
+            // (lexicographical index - \sum_{n = 1}^{i+1} n missing pairs)
             index = STDIM*i + j - (i+1)*(i+2)/2;
             plaq_temp=plaquettep_complex(GC, geo, param, r, i, j);
-            // some compilers cannot perform reductions on complex variables
             plaqre[index][r]+=creal(plaq_temp);
             plaqim[index][r]+=cimag(plaq_temp);
             }
@@ -332,6 +332,14 @@ void compute_all_complex_plaquettes(Gauge_Conf const * const GC,
       plaq[i]*=param->d_inv_vol;
       plaquettes[i]=plaq[i];
       }
+
+   // free memory
+   for(unsigned int i=0; i<(STDIM*(STDIM-1)/2); i++) 
+      {
+      free(plaqre[i]);
+      free(plaqim[i]);
+      }
+
    }
 
 // compute the mean plaquettes (spatial, temporal)
