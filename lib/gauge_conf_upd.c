@@ -973,7 +973,6 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
          for(int t=0; t<param->d_size[i]; t++)
             {
                GAUGE_GROUP start, end;
-               rplust = nnp(geo, r, i);
                linear_parallel_transport(GC, geo, rplust, param->d_size[i] - t, i, &end);
                linear_parallel_transport(GC, geo, rplusone, t-1, i, &start);
                times_equal(&stap_cross_terms[t], &start);
@@ -982,6 +981,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
                times_equal(&stap_cross_terms_dag[t], &start);
                times_equal_dag(&stap_cross_terms_dag[t], &poly_otherdir[t]);
                times_equal(&stap_cross_terms_dag[t], &end);
+               rplust = nnp(geo, r, i);
             }
 
          mixed_action_old = 0;         
