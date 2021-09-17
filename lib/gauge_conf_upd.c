@@ -293,8 +293,8 @@ void linear_parallel_transport(Gauge_Conf const * const GC,
     rnext=r;
     for(j=0; j<steps; j++)
        {
-       rnext=nnp(geo, rnext, dir);
        times_equal(&aux, &(GC->lattice[rnext][dir]));
+       rnext=nnp(geo, rnext, dir);
        }
 
     equal(M, &aux);
