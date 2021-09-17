@@ -532,6 +532,18 @@ void calcstaples_tracedef(Gauge_Conf const * const GC,
                           long r,
                           int i,
                           GAUGE_GROUP * M);
+void polyakov_loop(Gauge_Conf const * const GC,
+                          Geometry const * const geo,
+                          GParam const * const param,
+                          long r,
+                          int i,
+                          GAUGE_GROUP * M);
+void linear_parallel_transport(Gauge_Conf const * const GC,
+                          Geometry const * const geo,
+                          long r,
+                          int steps,
+                          int i,
+                          GAUGE_GROUP * M);
 void compute_clovers(Gauge_Conf const * const GC,
                      Geometry const * const geo,
                      GParam const * const param,
