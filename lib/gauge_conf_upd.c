@@ -277,6 +277,13 @@ void linear_parallel_transport(Gauge_Conf const * const GC,
     long rnext;
     GAUGE_GROUP aux;
 
+
+   if(steps < 0)
+      {
+      fprintf(stderr, "Using linear_parallel_transport with negative number of steps (%s, %d)\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
+      }
+
     one(&aux);
 
     rnext=r;
@@ -962,8 +969,21 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
          for(int t=0; t<param->d_size[i]; t++)
             {
                GAUGE_GROUP start, end;
-               linear_parallel_transport(GC, geo, rplust, param->d_size[i] - t, i, &end);
-               linear_parallel_transport(GC, geo, rplusone, t-1, i, &start);
+               if (t == 0)
+                  {
+                  // start: r+1 -> r; end: r->r
+                  // start requires (N-1) steps; end requires no steps
+                  // a way to remove this "if"-branch is to identify t=0 with t=N
+                  linear_parallel_transport(GC, geo, rplusone, param->d_size[i] - 1, i, &start);
+                  one(&end);
+                  }
+               else
+                  {
+                  // start: r+1 -> r+t; end: r+t -> r
+                  // start requires (t-1) steps; end requires (N-t) steps
+                  linear_parallel_transport(GC, geo, rplust, param->d_size[i] - t, i, &end);
+                  linear_parallel_transport(GC, geo, rplusone, t-1, i, &start);
+                  }
                times_equal(&stap_cross_terms[t], &start);
                times_equal(&stap_cross_terms[t], &poly_otherdir[t]);
                times_equal(&stap_cross_terms[t], &end);
