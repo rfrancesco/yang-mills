@@ -248,7 +248,7 @@ void polyakov_loop(Gauge_Conf const * const GC,
                           GAUGE_GROUP * M)
    {
    int j;
-   long int rnext;
+   long rnext;
    GAUGE_GROUP aux;
 
    one(&aux);
@@ -274,7 +274,7 @@ void linear_parallel_transport(Gauge_Conf const * const GC,
                           GAUGE_GROUP * M)
   {
     int j;
-    long int rnext;
+    long rnext;
     GAUGE_GROUP aux;
 
     one(&aux);
