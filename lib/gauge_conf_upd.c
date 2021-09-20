@@ -246,33 +246,22 @@ void polyakov_loop(Gauge_Conf const * const GC,
                           long r,
                           int dir,
                           GAUGE_GROUP * M)
-  {
-  if(dir>=param->d_tracedef_dim)
-    {
-    zero(M);
-    #ifdef DEBUG
-    fprintf(stderr, "Using calcstaples_tracedef for a non-compactified link (%s, %d)\n", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
-    #endif
-    }
-  else
-    {
-    int j;
-    long int rnext;
-    GAUGE_GROUP aux;
+   {
+   int j;
+   long int rnext;
+   GAUGE_GROUP aux;
 
-    one(&aux);
+   one(&aux);
 
-    rnext=r;
-    for(j=0; j<param->d_size[dir]; j++)
-       {
-       times_equal(&aux, &(GC->lattice[rnext][dir]));
-       rnext=nnp(geo, rnext, dir);
-       }
+   rnext=r;
+   for(j=0; j<param->d_size[dir]; j++)
+      {
+      times_equal(&aux, &(GC->lattice[rnext][dir]));
+      rnext=nnp(geo, rnext, dir);
+      }
 
-    equal(M, &aux);
-    }
-  }
+   equal(M, &aux);
+   }
 
 
 // calculates the product of the linear parallel transport
