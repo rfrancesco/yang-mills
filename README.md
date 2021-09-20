@@ -15,4 +15,4 @@ To make it work for arbitrary SU(N) or SO(N) gauge groups, we should
 - Generalized Polyakov calculation functions, and tracedef staples functions, to an arbitrary (trace-deformed) axis.
 - Wrote functions for Mixed Polyakov loops calculation (only ~PiPj and PiPj^\dag for now).
 - Generalized the Metropolis with tracedef to the case of tracedef\_dim == 0, 1, 2, N\_c = 3.  Sadly, this does not scale to higher N\_c/ higher tracedef\_dim in an elegant way.
-
+- Wrote (lib/gauge_conf_upd.c) _polyakov\_loop_ (Polyakov loop from r to r as a matrix) and _linear\_parallel\_transport_ (Product of links from r, counting steps) to support the Metropolis algorithm
