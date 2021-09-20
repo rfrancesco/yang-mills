@@ -871,7 +871,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
   #endif
 
   GAUGE_GROUP stap_w, stap_td, new_link, tmp_matrix, rnd_matrix, poly;
-  GAUGE_GROUP *poly_dir, *poly_otherdir;
+  GAUGE_GROUP *poly_otherdir;
   GAUGE_GROUP *stap_cross_terms, *stap_cross_terms_dag;
   double action_new, action_old;
   double mixed_action_new, mixed_action_old;
@@ -885,12 +885,6 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
     calcstaples_with_topo(GC, geo, param, r, i, &stap_w);
   #endif
 
-  err=posix_memalign((void*)&poly_dir, (size_t)DOUBLE_ALIGN, (size_t) param->d_size[i] * sizeof(GAUGE_GROUP));
-   if(err!=0)
-     {
-     fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
-     exit(EXIT_FAILURE);
-     }
   err=posix_memalign((void*)&poly_otherdir, (size_t)DOUBLE_ALIGN, (size_t) param->d_size[i] * sizeof(GAUGE_GROUP));
    if(err!=0)
      {
@@ -984,9 +978,11 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
                   linear_parallel_transport(GC, geo, rplust, param->d_size[i] - t, i, &end);
                   linear_parallel_transport(GC, geo, rplusone, t-1, i, &start);
                   }
+               // staple for Tr PP
                times_equal(&stap_cross_terms[t], &start);
                times_equal(&stap_cross_terms[t], &poly_otherdir[t]);
                times_equal(&stap_cross_terms[t], &end);
+               // staple for Tr PP^\dag
                times_equal(&stap_cross_terms_dag[t], &start);
                times_equal_dag(&stap_cross_terms_dag[t], &poly_otherdir[t]);
                times_equal(&stap_cross_terms_dag[t], &end);
@@ -994,11 +990,13 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
             }
 
          mixed_action_old = 0;         
+         // for each mixed loop containing our link, calculate \Delta S
          for(int t=0; t<param->d_size[i]; t++)
             {
-               GAUGE_GROUP tmp1, tmp2;
+               GAUGE_GROUP tmp1;
+
+               // Delta S [ |Tr PP|^2 ] 
                one(&tmp1);
-               one(&tmp2);
                times_equal(&tmp1, &(GC->lattice[r][i]));               
                times_equal(&tmp1, &stap_cross_terms[t]);
                rpart=NCOLOR*retr(&tmp1);
@@ -1006,10 +1004,12 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
 
                mixed_action_old += param->d_hmixed[0]*(rpart*rpart + ipart*ipart);
 
-               times_equal(&tmp2, &(GC->lattice[r][i]));               
-               times_equal(&tmp2, &stap_cross_terms_dag[t]);
-               rpart=NCOLOR*retr(&tmp2);
-               ipart=NCOLOR*imtr(&tmp2);
+               // Delta S [ |Tr PP^\dag|^2 ] 
+               one(&tmp1);
+               times_equal(&tmp1, &(GC->lattice[r][i]));               
+               times_equal(&tmp1, &stap_cross_terms_dag[t]);
+               rpart=NCOLOR*retr(&tmp1);
+               ipart=NCOLOR*imtr(&tmp1);
 
                mixed_action_old += param->d_hmixed[1]*(rpart*rpart + ipart*ipart);
             }
@@ -1061,11 +1061,13 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
 
 
          mixed_action_new = 0;         
+         // for each mixed loop containing our link, calculate \Delta S
          for(int t=0; t<param->d_size[i]; t++)
             {
-               GAUGE_GROUP tmp1, tmp2;
+               GAUGE_GROUP tmp1;
+
+               // \Delta S [ |Tr PP|^2]
                one(&tmp1);
-               one(&tmp2);
                times_equal(&tmp1, &new_link);               
                times_equal(&tmp1, &stap_cross_terms[t]);
                rpart=NCOLOR*retr(&tmp1);
@@ -1073,10 +1075,12 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
 
                mixed_action_new += param->d_hmixed[0]*(rpart*rpart + ipart*ipart);
 
-               times_equal(&tmp2, &new_link);               
-               times_equal(&tmp2, &stap_cross_terms_dag[t]);
-               rpart=NCOLOR*retr(&tmp2);
-               ipart=NCOLOR*imtr(&tmp2);
+               // \Delta S [ |Tr PP^\dag|^2 ]
+               one(&tmp1);
+               times_equal(&tmp1, &new_link);               
+               times_equal(&tmp1, &stap_cross_terms_dag[t]);
+               rpart=NCOLOR*retr(&tmp1);
+               ipart=NCOLOR*imtr(&tmp1);
 
                mixed_action_new += param->d_hmixed[1]*(rpart*rpart + ipart*ipart);
             }
@@ -1098,7 +1102,6 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
        }
      }
   free(poly_otherdir);
-  free(poly_dir);
   free(stap_cross_terms);
   free(stap_cross_terms_dag);
   return acc;
