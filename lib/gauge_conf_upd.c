@@ -946,7 +946,7 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
        // This is a hack. If the results are promising, this must
        // be rewritten for the general case!
 
-       if(param->d_tracedef_dim == 2)
+       if(param->d_tracedef_dim == 2 && (param->d_hmixed[0] != 0 || param->d_hmixed[1] != 0))
          {
          int mixed_term_dir = 1 - i; // The other compactified direction
          
@@ -1054,10 +1054,10 @@ int metropolis_with_tracedef(Gauge_Conf *GC,
        // This is a hack. If the results are promising, this must
        // be rewritten for the general case!
 
-       if(param->d_tracedef_dim == 2)
+       if(param->d_tracedef_dim == 2 && (param->d_hmixed[0] != 0 || param->d_hmixed[1] != 0))
          {
          // int mixed_term_dir = 1 - i; // The other compactified direction
-	 // We do not need to compute it again, as the loop along mixed_term_dir does not change during an update
+	      // We do not need to compute it again, as the loop along mixed_term_dir does not change during an update
 
 
          mixed_action_new = 0;         
