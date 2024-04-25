@@ -31,6 +31,15 @@ long sum_checked(int* checked, GParam *param)
     return sum;
 }
 
+int parity(int *x)
+{
+    long sum=0;
+    for (int i=0; i<4; i++) sum+=x[i];
+    sum %= 2;
+    return (int)sum;
+}
+
+
 void crash()
 {
     printf("ERROR. \n");
@@ -42,7 +51,7 @@ void real_main(char *in_file)
     Gauge_Conf GC;
     Geometry geo;
     GParam param;
-    int *checked, err;
+    int *checked, err, eo;
 
 
     // to disable nested parallelism
@@ -88,6 +97,7 @@ void real_main(char *in_file)
     printf("VALID/ERROR: consistency check, by transforming coordinates both ways. ERROR should never be displayed, by design. \n");
     printf("OK_SISP: consistency check for axis=0, by checking that rsp is indeed the sisp used in the original code. \n");
     printf("It is also tested that every lattice site r is visited by the mapping (rsp, t) <-> r at fixed axis. If not, ERROR will be displayed and the program will fail. \n");
+    printf("Moreover, the parity is also checked. \n");
 
     err=posix_memalign((void**)&checked, (size_t)INT_ALIGN, (size_t) param.d_volume * sizeof(int));
     if(err!=0)
@@ -127,7 +137,7 @@ void real_main(char *in_file)
             printf("VALID ");
             }
           else
-            crash()
+            crash();
 
 	  if (axis == 0)
 	    {
@@ -144,6 +154,12 @@ void real_main(char *in_file)
                crash();
 	       }
             }
+	  eo=parity(cartcoord);
+          printf("Parity = %d",eo);
+	  // Check that the first V/2 rsp are even, and the last V/2 rsp are odd 
+	  // Turning on t>0 switches the parity depending on t%2
+          if (t%2 == 1) eo = 1-eo;
+          if (eo != (rsp / (param.d_orth_vol[axis]/2))) crash();
 	  printf("\n");
           }
         }
