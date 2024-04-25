@@ -18,11 +18,31 @@
 #include"../include/gparam.h"
 #include"../include/random.h"
 
+void clear_checked(int* checked, GParam *param)
+{
+    for (long i=0; i<param->d_volume; i++) checked[i]=0;
+}
+
+
+long sum_checked(int* checked, GParam *param)
+{
+    long sum=0;
+    for (long i=0; i<param->d_volume; i++) sum+=checked[i];
+    return sum;
+}
+
+void crash()
+{
+    printf("ERROR. \n");
+    exit(EXIT_FAILURE);
+}
+
 void real_main(char *in_file)
     {
     Gauge_Conf GC;
     Geometry geo;
     GParam param;
+    int *checked, err;
 
 
     // to disable nested parallelism
@@ -60,18 +80,26 @@ void real_main(char *in_file)
       }
     else
       {
-      printf("ERROR! \n");
-      exit(EXIT_FAILURE);
+      crash();
       }
 
     printf("Testing consistency of the (rsp, t, axis) <-> r <-> (x_1...x_n, t) mapping. \n");
     printf("This should loop over every combination of (axis, rsp, t). This should be checked visually. \n");
     printf("VALID/ERROR: consistency check, by transforming coordinates both ways. ERROR should never be displayed, by design. \n");
     printf("OK_SISP: consistency check for axis=0, by checking that rsp is indeed the sisp used in the original code. \n");
+    printf("It is also tested that every lattice site r is visited by the mapping (rsp, t) <-> r at fixed axis. If not, ERROR will be displayed and the program will fail. \n");
+
+    err=posix_memalign((void**)&checked, (size_t)INT_ALIGN, (size_t) param.d_volume * sizeof(int));
+    if(err!=0)
+      {
+      fprintf(stderr, "Problems in allocating a vector (%s, %d)\n", __FILE__, __LINE__);
+      crash();
+      }
 
     for(int axis=0; axis<STDIM; axis++)
       {
       printf("BEGINNING TEST: (rsp, t, axis=%d)\n", axis);
+      clear_checked(checked, &param);
       for(long rsp=0; rsp<param.d_orth_vol[axis]; rsp++)
         {
         printf("Testing rsp = %ld, relative to axis %d. Varying t...\n", rsp, axis);
@@ -79,6 +107,11 @@ void real_main(char *in_file)
           {
           int cartcoord[STDIM];
           long r=siorth_and_par_to_si(&geo, rsp, t, axis);
+
+          if (checked[r]==1)	// If the site r is already mapped to some other (rsp, t) -> something went very wrong
+            crash();
+          checked[r]=1;
+
           si_to_cart(cartcoord, r, &param);
           printf("(%ld, %d, %d) - Cart.:", rsp, t, axis);
           for(int i=0; i<STDIM; i++)
@@ -94,10 +127,8 @@ void real_main(char *in_file)
             printf("VALID ");
             }
           else
-            {
-            printf("ERROR\n");
-            exit(EXIT_FAILURE);
-            }
+            crash()
+
 	  if (axis == 0)
 	    {
             long rsp_test_bonati;
@@ -110,12 +141,15 @@ void real_main(char *in_file)
 	    else
 	       {
 	       printf("ERROR_SISP\n");
-	       exit(EXIT_FAILURE);
+               crash();
 	       }
             }
 	  printf("\n");
           }
         }
+      if (sum_checked(checked,&param) != param.d_volume) // If not all sites r were visited by the mapping
+	crash();
+
       printf("COMPLETED test for axis=%d\n", axis);
       }
 
